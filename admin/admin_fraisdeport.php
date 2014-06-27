@@ -32,6 +32,7 @@ if (! $res) {
 // Libraries
 dol_include_once("fraisdeport/core/lib/admin.lib.php");
 dol_include_once('fraisdeport/lib/fraisdeport.lib.php');
+dol_include_once('core/lib/admin.lib.php');
 //require_once "../class/myclass.class.php";
 // Translations
 $langs->load("fraisdeport@fraisdeport");

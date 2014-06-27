@@ -21,6 +21,8 @@ class ActionsFraisdeport
 
 			if($action == "confirm_validate" && $object->array_options['options_use_frais_de_port'] === "Oui") {
 				
+				dol_include_once('core/lib/admin.lib.php');
+						
 				// On récupère les frais de port définis dans la configuration du module
 				$TFraisDePort = unserialize(dolibarr_get_const($db, "FRAIS_DE_PORT_ARRAY"));
 				
