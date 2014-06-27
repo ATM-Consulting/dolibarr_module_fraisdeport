@@ -23,20 +23,20 @@
  *				Put some comments here
  */
 
-function mymoduleAdminPrepareHead()
+function fraisdeportAdminPrepareHead()
 {
     global $langs, $conf;
 
-    $langs->load("mymodule@mymodule");
+    $langs->load("fraisdeport@fraisdeport");
 
     $h = 0;
     $head = array();
 
-    $head[$h][0] = dol_buildpath("/mymodule/admin/admin_mymodule.php", 1);
+    $head[$h][0] = dol_buildpath("/fraisdeport/admin/admin_fraisdeport.php", 1);
     $head[$h][1] = $langs->trans("Settings");
     $head[$h][2] = 'settings';
     $h++;
-    $head[$h][0] = dol_buildpath("/mymodule/admin/about.php", 1);
+    $head[$h][0] = dol_buildpath("/fraisdeport/admin/about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
     $h++;

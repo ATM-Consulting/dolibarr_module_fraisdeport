@@ -31,14 +31,14 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once '../lib/mymodule.lib.php';
+require_once '../lib/fraisdeport.lib.php';
 
 dol_include_once('/mymodule/lib/php-markdown/markdown.php');
 
 
 //require_once "../class/myclass.class.php";
 // Translations
-$langs->load("mymodule@mymodule");
+$langs->load("fraisdeport@fraisdeport");
 
 // Access control
 if (! $user->admin) {
@@ -64,11 +64,11 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 print_fiche_titre($langs->trans($page_name), $linkback);
 
 // Configuration header
-$head = mymoduleAdminPrepareHead();
+$head = fraisdeportAdminPrepareHead();
 dol_fiche_head(
     $head,
     'about',
-    $langs->trans("Module10000Name"),
+    $langs->trans("Module104150Name"),
     0,
     'mymodule@mymodule'
 );
@@ -78,7 +78,7 @@ echo $langs->trans("MyModuleAboutPage");
 
 echo '<br>';
 
-$buffer = file_get_contents(dol_buildpath('/mymodule/README.md', 0));
+$buffer = file_get_contents(dol_buildpath('/fraisdeport/README', 0));
 echo Markdown($buffer);
 
 echo '<br>',

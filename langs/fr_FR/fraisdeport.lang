@@ -1,2 +1,6 @@
-ModuleXXXXXXName = Name
+Module104150Name = Frais de Port Automatiques
 ModuleXXXXXXDesc = Descripion
+FraisDePortSetup=Administration du module Frais de Port
+EurosPallier=Pallier en euros
+TarifFraisDePort=Montant des frais de port
+SaveFDP=Enregistrer les frais de port
