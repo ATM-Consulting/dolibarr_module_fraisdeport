@@ -116,7 +116,7 @@ function _saveFDP(&$db, $TPallier, $TFpd) {
 	return dolibarr_set_const($db, 'FRAIS_DE_PORT_ARRAY', serialize($TFraisDePort));
 	
 }
-	
+
 print '<form name="formFraisDePortLevel" method="POST" action="'.dol_buildpath('/fraisdeport/admin/admin_fraisdeport.php', 2).'" />';
 print '<table class="noborder" width="100%">';
 	
@@ -128,10 +128,7 @@ print '</tr>';
 print '<input type="hidden" name="action" value="save" />';
 
 $i = 0;
-/*echo "<pre>";
-print_r(array_keys($TFraisDePort));
-echo "</pre>";
-exit;*/
+
 if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
 	
 	foreach($TFraisDePort as $pallier => $fdp) {
@@ -154,9 +151,9 @@ print '<td><input type="text" name="TFdp['.$i.']" /></td>';
 
 print '</tr>';
 
-print '<input style="float:right" class="butAction" type="SUBMIT" name="subSaveFDP" value="'.$langs->trans('SaveFDP').'" />';
-
 print '</table>';
+
+print '<div class="tabsAction"><input class="butAction" type="SUBMIT" name="subSaveFDP" value="'.$langs->trans('SaveFDP').'" /></div>';
 
 print '</form>';
 
