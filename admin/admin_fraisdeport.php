@@ -56,7 +56,11 @@ switch ($action) {
 	case 'save':
 		$TPallier = $_REQUEST['TPallier'];
 		$TFpd = $_REQUEST['TFdp'];
-		_saveFDP($db, $TPallier, $TFpd);
+		if(_saveFDP($db, $TPallier, $TFpd)) {
+			
+			setEventMessage($langs->trans('FDPSaved'));
+			
+		}
 		break;
 	
 	default:
@@ -99,8 +103,8 @@ function _saveFDP(&$db, $TPallier, $TFpd) {
 	
 	while($i < count($TPallier)) {
 		
-		if(!empty($TPallier[$i]) && !empty($TFpd[$i])) {
-			
+		if(!empty($TPallier[$i]) && !empty($TFpd[$i]) && is_numeric($TPallier[$i]) && is_numeric($TFpd[$i])) {
+
 			$TFraisDePort[$TPallier[$i]] = $TFpd[$i];
 
 		}
@@ -109,12 +113,7 @@ function _saveFDP(&$db, $TPallier, $TFpd) {
 		
 	}
 	
-	/*echo "<pre>";
-	print_r($TFraisDePort);
-	echo "</pre>";
-	exit;*/
-	
-	dolibarr_set_const($db, 'FRAIS_DE_PORT_ARRAY', serialize($TFraisDePort));
+	return dolibarr_set_const($db, 'FRAIS_DE_PORT_ARRAY', serialize($TFraisDePort));
 	
 }
 	
