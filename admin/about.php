@@ -73,13 +73,23 @@ dol_fiche_head(
     'mymodule@mymodule'
 );
 
-// About page goes here
-echo $langs->trans("MyModuleAboutPage");
-
-echo '<br>';
-
-$buffer = file_get_contents(dol_buildpath('/fraisdeport/README', 0));
-echo Markdown($buffer);
+?>
+	<table width="100%" class="noborder">
+		<tr class="liste_titre">
+			<td>A propos</td>
+			<td align="center">&nbsp;</td>
+			</tr>
+			<tr class="impair">
+				<td valign="top">Module développé par </td>
+				<td align="center">
+					<img src="<?=DOL_URL_ROOT?>/custom/fraisdeport/img/logo2-w-small.png" align="absmiddle"/>
+					
+				</td>
+				
+			</td>
+		</tr>
+	</table>
+<?php
 
 echo '<br>',
 '<a href="' . dol_buildpath('/mymodule/COPYING', 1) . '">',
