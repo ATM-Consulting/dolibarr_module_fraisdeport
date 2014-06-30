@@ -14,10 +14,10 @@ class ActionsFraisdeport
 		
 		if (in_array('ordercard',explode(':',$parameters['context']))) 
         {
-			$object->fetch_optionals($object->id);
+			/*$object->fetch_optionals($object->id);
 			/*echo "<pre>";
 			print_r($object);
-			echo "</pre>";*/
+			echo "</pre>";
 
 			if($action == "confirm_validate" && $object->array_options['options_use_frais_de_port'] === "Oui") {
 				
@@ -34,8 +34,10 @@ class ActionsFraisdeport
 					
 					foreach ($TFraisDePort as $pallier => $fdp) {
 						
-						if($object->total_ttc < $pallier)
+						if($object->total_ttc < $pallier) {
 							$fdp_used = $fdp;
+							break;
+						}
 						
 					}
 					
@@ -44,7 +46,7 @@ class ActionsFraisdeport
 				$fdp_used = empty($fdp_used) ? 0 : $fdp_used;
 				$object->addline("Montant total des frais de port", $fdp_used, 1, 0, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $date_start, $date_end);
 				
-			}
+			}*/
 
 		}
 		
