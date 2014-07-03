@@ -149,7 +149,10 @@ class InterfaceFraisdeport
 			
 			$fdp_used = empty($fdp_used) ? 0 : $fdp_used;
 			$object->statut = 0;
-			$object->addline("Montant total des frais de port", $fdp_used, 1, 0, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $date_start, $date_end);
+			$fk_product = dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE');
+			if(!empty($fk_product)) {
+				$object->addline("Frais de port", $fdp_used, 1, 0, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $date_start, $date_end);
+			}
 			$object->statut = 1;
 			
             dol_syslog(

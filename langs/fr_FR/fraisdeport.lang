@@ -5,3 +5,5 @@ EurosPallier=Pallier en euros
 TarifFraisDePort=Montant des frais de port
 SaveFDP=Enregistrer les frais de port
 FDPSaved=Frais de port enregistrés avec succès !
+IDServiceSaved=Ce service sera utilisé pour la gestion des frais de port !
+IDServiceNotSaved=Aucun service trouvé...

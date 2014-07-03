@@ -28,6 +28,7 @@ if (! $res) {
     $res = @include("../../../main.inc.php"); // From "custom" directory
 }
 
+global $db;
 
 // Libraries
 dol_include_once("fraisdeport/core/lib/admin.lib.php");
@@ -51,7 +52,10 @@ $action = GETPOST('action', 'alpha');
 
 $action = $_REQUEST['action'];
 
-//print_r($_REQUEST);
+/*echo "<pre>";
+print_r($_REQUEST);
+echo "</pre>";
+exit;*/
 
 switch ($action) {
 	case 'save':
@@ -62,6 +66,19 @@ switch ($action) {
 			setEventMessage($langs->trans('FDPSaved'));
 			
 		}
+		break;
+		
+	case 'saveIDServiceToUse':
+		if(_saveIDServiceToUse($db, $_REQUEST['idservice'])) {
+			
+			setEventMessage($langs->trans('IDServiceSaved'));
+			
+		} else {
+			
+			setEventMessage($langs->trans('IDServiceNotSaved'), 'errors');
+			
+		}
+		
 		break;
 	
 	default:
@@ -118,6 +135,19 @@ function _saveFDP(&$db, $TPallier, $TFpd) {
 	
 }
 
+function _saveIDServiceToUse($db, $idservice_to_use) {
+	
+	if(!empty($idservice_to_use)) {
+		
+		dolibarr_set_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', $idservice_to_use);
+		return true;
+		
+	}
+	
+	return false;
+	
+}
+
 print '<form name="formFraisDePortLevel" method="POST" action="'.dol_buildpath('/fraisdeport/admin/admin_fraisdeport.php', 2).'" />';
 print '<table class="noborder" width="100%">';
 	
@@ -155,6 +185,18 @@ print '</tr>';
 print '</table>';
 
 print '<div class="tabsAction"><input class="butAction" type="SUBMIT" name="subSaveFDP" value="'.$langs->trans('SaveFDP').'" /></div>';
+
+print '</form>';
+
+print '<form name="formIDServiceToUse" method="POST" action="" />';
+
+$form = new Form($db);
+
+$form->select_produits('','idservice',1,$conf->product->limit_size,$buyer->price_level);
+
+print '<input type="hidden" name="action" value="saveIDServiceToUse" />';
+
+print '<input type="SUBMIT" name="subIDServiceToUse" value="Utiliser ce service" />';
 
 print '</form>';
 
