@@ -192,7 +192,7 @@ print '<form name="formIDServiceToUse" method="POST" action="" />';
 
 $form = new Form($db);
 
-$form->select_produits('','idservice',1,$conf->product->limit_size,$buyer->price_level);
+$form->select_produits(dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE'),'idservice',1,$conf->product->limit_size,$buyer->price_level);
 
 print '<input type="hidden" name="action" value="saveIDServiceToUse" />';
 
