@@ -129,27 +129,37 @@ class InterfaceFraisdeport
 					
 			// On récupère les frais de port définis dans la configuration du module
 			$TFraisDePort = unserialize(dolibarr_get_const($db, "FRAIS_DE_PORT_ARRAY"));
+			$fk_product = dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE');
 			
-			// On les range du pallier le plus petit au plus grand
-			ksort($TFraisDePort);
-
-			// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
-			$fdp_used = 0;
-			if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-				foreach ($TFraisDePort as $pallier => $fdp) {
-					if($object->total_ttc < $pallier) {
-						$fdp_used = $fdp;
-						break;
-					}
+			// On vérifie s'il n'y a pas déjà les frais de port dans le document (double validation ou ajout manuel...)
+			$fdpAlreadyInDoc = false;
+			foreach($object->lines as $line) {
+				if(!empty($line->fk_product) && $line->fk_product == $fk_product) {
+					$fdpAlreadyInDoc = true;
 				}
 			}
 			
-			$object->statut = 0;
-			$fk_product = dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE');
-			if(!empty($fk_product)) {
-				$object->addline("Frais de port", $fdp_used, 1, 0, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, 0, 0, 'HT', 0, '', '', 1);
+			if(!$fdpAlreadyInDoc) {
+				// On les range du pallier le plus petit au plus grand
+				ksort($TFraisDePort);
+	
+				// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
+				$fdp_used = 0;
+				if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
+					foreach ($TFraisDePort as $pallier => $fdp) {
+						if($object->total_ht < $pallier) {
+							$fdp_used = $fdp;
+							break;
+						}
+					}
+				}
+				
+				$object->statut = 0;
+				if(!empty($fk_product)) {
+					$object->addline("Frais de port", $fdp_used, 1, 0, 0, 0, $fk_product);
+				}
+				$object->statut = 1;
 			}
-			$object->statut = 1;
 			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
