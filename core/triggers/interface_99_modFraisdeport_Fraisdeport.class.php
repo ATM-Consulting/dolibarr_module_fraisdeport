@@ -128,8 +128,8 @@ class InterfaceFraisdeport
 			dol_include_once('core/lib/admin.lib.php');
 					
 			// On récupère les frais de port définis dans la configuration du module
-			$TFraisDePort = unserialize(dolibarr_get_const($db, "FRAIS_DE_PORT_ARRAY"));
-			$fk_product = dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE');
+			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_ARRAY);
+			$fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
 			
 			// On vérifie s'il n'y a pas déjà les frais de port dans le document (double validation ou ajout manuel...)
 			$fdpAlreadyInDoc = false;
