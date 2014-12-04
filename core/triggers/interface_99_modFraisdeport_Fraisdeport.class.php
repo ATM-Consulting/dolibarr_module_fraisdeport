@@ -116,7 +116,7 @@ class InterfaceFraisdeport
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
-        if ($action == 'ORDER_VALIDATE') {
+        if ($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') {
         	
 			global $db;
         	
@@ -134,20 +134,16 @@ class InterfaceFraisdeport
 			ksort($TFraisDePort);
 
 			// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
+			$fdp_used = 0;
 			if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-				
 				foreach ($TFraisDePort as $pallier => $fdp) {
-
 					if($object->total_ttc < $pallier) {
 						$fdp_used = $fdp;
 						break;
 					}
-					
 				}
-				
 			}
 			
-			$fdp_used = empty($fdp_used) ? 0 : $fdp_used;
 			$object->statut = 0;
 			$fk_product = dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE');
 			if(!empty($fk_product)) {

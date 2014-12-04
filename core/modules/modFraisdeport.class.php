@@ -438,14 +438,12 @@ class modFraisdeport extends DolibarrModules
         $sql = array();
 
         $result = $this->loadTables();
-
-        $url = dol_buildpath('/fraisdeport/script/create-maj-base.php', 2);
-        file_get_contents($url);
 		
 		// Création extrafield pour choix si frais de port doit apparaitre sur doc.
 		dol_include_once('/core/class/extrafields.class.php');
 		//function addExtraField($attrname, $label, $type, $pos, $size, $elementtype, $unique=0, $required=0,$default_value='', $param=0)
 		$ext = new ExtraFields($db);
+		$res = $ext->addExtraField("use_frais_de_port", 'Automatisation des frais de port', 'select', 0, "", 'propale', 0, 0, '', array("options" =>array("Oui" => "Oui", "Non" => "Non")));
 		$res = $ext->addExtraField("use_frais_de_port", 'Automatisation des frais de port', 'select', 0, "", 'commande', 0, 0, '', array("options" =>array("Oui" => "Oui", "Non" => "Non")));
 		
         return $this->_init($sql, $options);
