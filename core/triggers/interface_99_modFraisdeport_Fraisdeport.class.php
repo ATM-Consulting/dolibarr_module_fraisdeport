@@ -118,7 +118,7 @@ class InterfaceFraisdeport
         // Users
         if ($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') {
         	
-			global $db;
+			global $db,$conf;
         	
 			$object->fetch_optionals($object->id);
 			/*echo "<pre>";
