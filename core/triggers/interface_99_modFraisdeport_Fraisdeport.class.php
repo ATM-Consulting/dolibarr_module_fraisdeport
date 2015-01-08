@@ -154,11 +154,13 @@ class InterfaceFraisdeport
 					}
 				}
 				
-				$object->statut = 0;
 				if(!empty($fk_product)) {
+					$object->statut = 0;
 					$object->addline("Frais de port", $fdp_used, 1, 0, 0, 0, $fk_product);
+					$object->fetch($object->id);
+					$object->statut = 1;
 				}
-				$object->statut = 1;
+				
 			}
 			
             dol_syslog(
