@@ -139,7 +139,7 @@ class InterfaceFraisdeport
 				}
 			}
 			
-			if(!$fdpAlreadyInDoc) {
+			if(!$fdpAlreadyInDoc && $object->array_options['options_use_frais_de_port'] === "Oui") {
 				// On les range du pallier le plus petit au plus grand
 				ksort($TFraisDePort);
 	
