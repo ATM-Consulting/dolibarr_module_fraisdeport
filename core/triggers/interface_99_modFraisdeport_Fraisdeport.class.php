@@ -155,8 +155,10 @@ class InterfaceFraisdeport
 				}
 				
 				if(!empty($fk_product)) {
+					$p = new Product($db);
+					$p->fetch($fk_product);
 					$object->statut = 0;
-					$object->addline("Frais de port", $fdp_used, 1, 0, 0, 0, $fk_product);
+					$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product);
 					$object->fetch($object->id);
 					$object->statut = 1;
 				}
