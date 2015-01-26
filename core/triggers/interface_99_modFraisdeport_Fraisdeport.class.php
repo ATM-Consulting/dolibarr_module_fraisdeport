@@ -158,7 +158,13 @@ class InterfaceFraisdeport
 					$p = new Product($db);
 					$p->fetch($fk_product);
 					$object->statut = 0;
-					$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product);
+					
+					if($object->element == 'commande') {
+						$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
+					} else if($object->element == 'propal') {
+						$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 'HT', 0, 0, $p->type);
+					}
+					
 					$object->fetch($object->id);
 					$object->statut = 1;
 				}
