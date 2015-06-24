@@ -23,40 +23,43 @@ class ActionsFraisdeport
 		return 0;
 	}
    function formObjectOptions($parameters, &$object, &$action, $hookmanager) {  
-        global $langs,$db;
-     
-        print '<script type="text/javascript">
-                $(document).ready(function() { ';
-     
-        foreach($object->lines as &$line) {
-            
-            if($line->fk_product_type ==0 && $line->fk_product>0 ) {
-                
-                dol_include_once('/product/class/product.class.php','Product');
-                
-                $p=new Product($db);
-                $p->fetch($line->fk_product);
-                
-                if($p->id>0) {
-                    
-                    $weight_kg = $p->weight * pow(10, $p->weight_units);
-                    $id_line = !empty($line->id) ? $line->id : $line->rowid;
-                    
-                    if(!empty($weight_kg)) {
-                        print '$("tr#row-'.$id_line.' td:first").append(" - '.$langs->trans('Weight').' : '.$weight_kg.'Kg");';    
-                    }
-                    
-                   
-                    
-                }
-                
-                
-            }
-            
-        }
-        
-        print '});
-        </script>';
+        global $conf, $langs,$db;
+		
+ 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && $conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
+ 			    
+	        print '<script type="text/javascript">
+	                $(document).ready(function() { ';
+	     
+	        foreach($object->lines as &$line) {
+	            
+	            if($line->fk_product_type ==0 && $line->fk_product>0 ) {
+	                
+	                dol_include_once('/product/class/product.class.php','Product');
+	                
+	                $p=new Product($db);
+	                $p->fetch($line->fk_product);
+	                
+	                if($p->id>0) {
+	                    
+	                    $weight_kg = $p->weight * $line->qty * pow(10, $p->weight_units);
+	                    $id_line = !empty($line->id) ? $line->id : $line->rowid;
+	                    
+	                    if(!empty($weight_kg)) {
+	                        print '$("tr#row-'.$id_line.' td:first").append(" - '.$langs->trans('Weight').' : '.$weight_kg.'Kg");';    
+	                    }
+	                    
+	                   
+	                    
+	                }
+	                
+	                
+	            }
+	            
+	        }
+	        
+	        print '});
+	        </script>';
+	    }
         
         return 0;
     }

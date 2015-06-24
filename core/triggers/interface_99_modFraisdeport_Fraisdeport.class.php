@@ -120,6 +120,8 @@ class InterfaceFraisdeport
         	
 			global $db,$conf;
         	
+			$langs->load('fraisdeport@fraisdeport');
+			
 			$object->fetch_optionals($object->id);
 			/*echo "<pre>";
 			print_r($object);
@@ -167,7 +169,7 @@ class InterfaceFraisdeport
                             $p->fetch($line->fk_product);
                             
                             if($p->id>0) {
-                                $weight_kg = $p->weight * pow(10, $p->weight_units);
+                                $weight_kg = $p->weight * $line->qty * pow(10, $p->weight_units);
                                 $total_weight+=$weight_kg;
                             }
                         }
@@ -175,7 +177,7 @@ class InterfaceFraisdeport
                     
                     if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
                         foreach ($TFraisDePortWeight as $fdp) {
-                            if($total_weight <= $fdp['weight'] && ($fdp['fdp']<$fdp_used_weight || empty($fdp_used_weight) ) ) {
+                            if($total_weight >= $fdp['weight'] && ($fdp['fdp']>$fdp_used_weight || empty($fdp_used_weight) ) ) {
                                 if (empty($fdp['zip']) 
                                     || (!empty( $fdp['zip'] ) && strpos( $object->client->zip, $fdp['zip']) === 0 ) ){
                                         $fdp_used_weight = $fdp['fdp'];        
