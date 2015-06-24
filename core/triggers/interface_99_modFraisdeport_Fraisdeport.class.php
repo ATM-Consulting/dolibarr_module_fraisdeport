@@ -119,7 +119,7 @@ class InterfaceFraisdeport
         if ($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') {
         	
 			global $db,$conf;
-        	
+
 			$langs->load('fraisdeport@fraisdeport');
 			
 			$object->fetch_optionals($object->id);
@@ -192,13 +192,15 @@ class InterfaceFraisdeport
 				$p->fetch($fk_product);
 				$object->statut = 0;
 				
+				$used_tva = ($object->client->country_id > 1) ? 0 : $p->tva_tx;
+				
 				if($object->element == 'commande') {
-					$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
+					$object->addline("Frais de port", $fdp_used, 1, $used_tva, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
 				} else if($object->element == 'propal') {
-					$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 'HT', 0, 0, $p->type);
+					$object->addline("Frais de port", $fdp_used, 1, $used_tva, 0, 0, $fk_product, 0, 'HT', 0, 0, $p->type);
 				}
                 
-                setEventMessage($langs->trans('PortTaxAdded').' : '.price($fdp_used).$conf->currency.' '.$langs->trans('VAT').' '.$p->tva_tx.'%' );
+                setEventMessage($langs->trans('PortTaxAdded').' : '.price($fdp_used).$conf->currency.' '.$langs->trans('VAT').' '.$used_tva.'%' );
 				
 				$object->fetch($object->id);
 				$object->statut = 1; // TODO à quoi ça sert... Puisqu'il n'ya pas de save... :-|
