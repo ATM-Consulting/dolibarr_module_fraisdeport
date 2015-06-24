@@ -192,7 +192,7 @@ class InterfaceFraisdeport
 				$p->fetch($fk_product);
 				$object->statut = 0;
 				
-				$used_tva = ($object->client->country_id > 1) ? 0 : $p->tva_tx;
+				$used_tva = ($object->client->tva_assuj == 1) ? $p->tva_tx : 0;
 				
 				if($object->element == 'commande') {
 					$object->addline("Frais de port", $fdp_used, 1, $used_tva, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
