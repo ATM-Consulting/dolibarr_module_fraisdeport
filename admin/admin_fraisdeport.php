@@ -52,20 +52,45 @@ $action = GETPOST('action', 'alpha');
 
 $action = $_REQUEST['action'];
 
-/*echo "<pre>";
-print_r($_REQUEST);
-echo "</pre>";
-exit;*/
 
 switch ($action) {
+    case 'save_weight':
+        
+        $TPallierWeight = GETPOST('TPallierWeight');
+        
+        foreach($TPallierWeight as $k=>$fdp) {
+            if(empty($fdp['fdp'])) {
+                unset($TPallierWeight[$k]);
+            }
+        }
+        
+        usort($TPallierWeight,'_weight_zip');
+        
+        dolibarr_set_const($db, 'FRAIS_DE_PORT_WEIGHT_ARRAY', serialize($TPallierWeight));
+        
+        setEventMessage($langs->trans('FDPSaved'));
+        
+        break;
+    
 	case 'save':
 		$TPallier = $_REQUEST['TPallier'];
 		$TFpd = $_REQUEST['TFdp'];
-		if(_saveFDP($db, $TPallier, $TFpd)) {
+		if(!empty($TPallier) && _saveFDP($db, $TPallier, $TFpd)) {
 			
 			setEventMessage($langs->trans('FDPSaved'));
 			
 		}
+        
+        $TDivers = isset($_REQUEST['TDivers']) ? $_REQUEST['TDivers'] : array();
+        
+        foreach($TDivers as $name=>$param) {
+        
+            dolibarr_set_const($db, $name, $param);
+            
+        }
+        if(!empty($TDivers)) setEventMessage( $langs->trans('RegisterSuccess') );
+        
+        
 		break;
 		
 	case 'saveIDServiceToUse':
@@ -91,6 +116,8 @@ switch ($action) {
  */ 
 
 $TFraisDePort = unserialize(dolibarr_get_const($db, 'FRAIS_DE_PORT_ARRAY'));
+$TFraisDePortWeight = unserialize(dolibarr_get_const($db, 'FRAIS_DE_PORT_WEIGHT_ARRAY'));
+
 //print_r($TFraisDePort);
  
 $page_name = "FraisDePortSetup";
@@ -113,7 +140,17 @@ dol_fiche_head(
 
 // Setup page goes here
 //echo $langs->trans("FraisDePortSetup");
-
+function _weight_zip(&$a,&$b) {
+    
+    if($a['weight']<$b['weight']) return -1;
+    else if($a['weight']>$b['weight']) return 1;
+    else  {
+        if($a['zip']<$b['zip']) return -1;
+        else if($a['zip']>$b['zip']) return 1;
+    }
+    
+    return 0;
+}
 function _saveFDP(&$db, $TPallier, $TFpd) {
 	
 	$i = 0;
@@ -149,10 +186,10 @@ function _saveIDServiceToUse($db, $idservice_to_use) {
 }
 
 print '<form name="formFraisDePortLevel" method="POST" action="'.dol_buildpath('/fraisdeport/admin/admin_fraisdeport.php', 2).'" />';
-print '<table class="noborder" width="100%">';
-	
+
+print '<table class="noborder">';
 print '<tr class="liste_titre">';
-print '<td>'.$langs->trans('EurosPallier').'</td>';
+print '<td width="20%">'.$langs->trans('EurosPallier').'</td>';
 print '<td>'.$langs->trans('TarifFraisDePort').'</td>';
 print '</tr>';
 
@@ -168,8 +205,9 @@ if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
 		$pallier = array_keys($TFraisDePort);
 
 		print '<td><input type="text" name="TPallier['.$i.']" value="'.$pallier[$i].'" /></td>';
+		
 		print '<td><input type="text" name="TFdp['.$i.']" value="'.$TFraisDePort[$pallier[$i]].'" /></td>';
-		print '</tr>';
+        print '</tr>';
 		$i++;
 	}	
 	
@@ -188,6 +226,48 @@ print '<div class="tabsAction"><input class="butAction" type="SUBMIT" name="subS
 
 print '</form>';
 
+if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
+        print '<form name="formFraisDePortLevel" method="POST" action="'.$_SERVER['PHP_SELF'].'" />';
+        print '<input type="hidden" name="action" value="save_weight" />';
+        print '<table class="noborder">';
+        print '<tr class="liste_titre">';
+        print '<td width="20%">'.$langs->trans('WeightPallier').'</td>';
+        print '<td width="20%">'.$langs->trans('Zip').'</td>';
+        print '<td>'.$langs->trans('TarifFraisDePort').'</td>';
+        print '</tr>';
+        
+        if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
+            
+            foreach($TFraisDePortWeight as $i => $fdp) {
+               print '<tr>';
+                
+                print '<td><input type="text" name="TPallierWeight['.$i.'][weight]" value="'.$fdp['weight'].'" />Kg</td>';
+                print '<td><input type="text" name="TPallierWeight['.$i.'][zip]" value="'.$fdp['zip'].'" /></td>';
+                
+                print '<td><input type="text" name="TPallierWeight['.$i.'][fdp]" value="'.$fdp['fdp'].'" /></td>';
+                print '</tr>';
+                
+            }   
+            
+        }
+        
+        print '<tr>';
+        
+        print '<td><input type="text" name="TPallierWeight['.($i+1).'][weight]" />Kg</td>';
+        print '<td><input type="text" name="TPallierWeight['.($i+1).'][zip]" /></td>';
+        print '<td><input type="text" name="TPallierWeight['.($i+1).'][fdp]" /></td>';
+        
+        print '</tr>';
+        
+        print '</table>';
+        
+        print '<div class="tabsAction"><input class="butAction" type="SUBMIT" name="subSaveFDP" value="'.$langs->trans('SaveFDP').'" /></div>';
+        
+        print '</form>';
+
+}
+        
+
 print '<form name="formIDServiceToUse" method="POST" action="" />';
 
 $form = new Form($db);
@@ -199,6 +279,29 @@ print '<input type="hidden" name="action" value="saveIDServiceToUse" />';
 print '<input type="SUBMIT" name="subIDServiceToUse" value="Utiliser ce service" />';
 
 print '</form>';
+
+?>
+<br />
+<table width="100%" class="noborder" style="background-color: #fff;">
+    <tr class="liste_titre">
+        <td colspan="2"><?php echo $langs->trans('Parameters') ?></td>
+    </tr>
+<tr>
+    <td><?php echo $langs->trans('UseWeight') ?></td><td><?php
+    
+        if($conf->global->FRAIS_DE_PORT_USE_WEIGHT==0) {
+            
+             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+            
+        }
+        else {
+             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+            
+        }
+    
+    ?></td>             
+</tr>
+</table><?
 
 llxFooter();
 

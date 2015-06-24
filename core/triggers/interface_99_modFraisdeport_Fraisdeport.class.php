@@ -129,45 +129,78 @@ class InterfaceFraisdeport
 					
 			// On récupère les frais de port définis dans la configuration du module
 			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_ARRAY);
-			$fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
+            $TFraisDePortWeight = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+            $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
 			
 			// On vérifie s'il n'y a pas déjà les frais de port dans le document (double validation ou ajout manuel...)
 			$fdpAlreadyInDoc = false;
 			foreach($object->lines as $line) {
 				if(!empty($line->fk_product) && $line->fk_product == $fk_product) {
 					$fdpAlreadyInDoc = true;
+                    break;
 				}
 			}
 			
-			if(!$fdpAlreadyInDoc && $object->array_options['options_use_frais_de_port'] === "Oui") {
+			if(!$fdpAlreadyInDoc && !empty($fk_product) && $object->array_options['options_use_frais_de_port'] === 'Oui') {
+			     dol_include_once('/product/class/product.class.php','Product');
+                
 				// On les range du pallier le plus petit au plus grand
 				ksort($TFraisDePort);
 	
 				// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
-				$fdp_used = 0;
+				$fdp_used_montant = 0;
 				if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
 					foreach ($TFraisDePort as $pallier => $fdp) {
 						if($object->total_ht < $pallier) {
-							$fdp_used = $fdp;
+							$fdp_used_montant = $fdp;
 							break;
 						}
 					}
 				}
 				
-				if(!empty($fk_product)) {
-					$p = new Product($db);
-					$p->fetch($fk_product);
-					$object->statut = 0;
-					
-					if($object->element == 'commande') {
-						$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
-					} else if($object->element == 'propal') {
-						$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 'HT', 0, 0, $p->type);
-					}
-					
-					$object->fetch($object->id);
-					$object->statut = 1;
+                $fdp_used_weight = 0;
+                if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
+                    $total_weight = 0;
+                    foreach($object->lines as &$line) {
+                        if($line->fk_product_type ==0 && $line->fk_product>0 ) {
+                            $p=new Product($db);
+                            $p->fetch($line->fk_product);
+                            
+                            if($p->id>0) {
+                                $weight_kg = $p->weight * pow(10, $p->weight_units);
+                                $total_weight+=$weight_kg;
+                            }
+                        }
+                    }
+                    
+                    if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
+                        foreach ($TFraisDePortWeight as $fdp) {
+                            if($total_weight <= $fdp['weight'] && ($fdp['fdp']<$fdp_used_weight || empty($fdp_used_weight) ) ) {
+                                if (empty($fdp['zip']) 
+                                    || (!empty( $fdp['zip'] ) && strpos( $object->client->zip, $fdp['zip']) === 0 ) ){
+                                        $fdp_used_weight = $fdp['fdp'];        
+                                    } 
+                            }
+                        }
+                    }
+                }
+               
+                $fdp_used = max($fdp_used_weight, $fdp_used_montant );
+                $p = new Product($db);
+				$p->fetch($fk_product);
+				$object->statut = 0;
+				
+				if($object->element == 'commande') {
+					$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
+				} else if($object->element == 'propal') {
+					$object->addline("Frais de port", $fdp_used, 1, $p->tva_tx, 0, 0, $fk_product, 0, 'HT', 0, 0, $p->type);
 				}
+                
+                setEventMessage($langs->trans('PortTaxAdded').' : '.price($fdp_used).$conf->currency.' '.$langs->trans('VAT').' '.$p->tva_tx.'%' );
+				
+				$object->fetch($object->id);
+				$object->statut = 1; // TODO à quoi ça sert... Puisqu'il n'ya pas de save... :-|
+			
 				
 			}
 			

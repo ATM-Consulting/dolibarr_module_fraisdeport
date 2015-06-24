@@ -14,43 +14,50 @@ class ActionsFraisdeport
 		
 		if (in_array('ordercard',explode(':',$parameters['context']))) 
         {
-			/*$object->fetch_optionals($object->id);
-			/*echo "<pre>";
-			print_r($object);
-			echo "</pre>";
-
-			if($action == "confirm_validate" && $object->array_options['options_use_frais_de_port'] === "Oui") {
-				
-				dol_include_once('core/lib/admin.lib.php');
-						
-				// On récupère les frais de port définis dans la configuration du module
-				$TFraisDePort = unserialize(dolibarr_get_const($db, "FRAIS_DE_PORT_ARRAY"));
-				
-				// On les range du pallier le plus petit au plus grand
-				ksort($TFraisDePort);
-				
-				// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
-				if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-					
-					foreach ($TFraisDePort as $pallier => $fdp) {
-						
-						if($object->total_ttc < $pallier) {
-							$fdp_used = $fdp;
-							break;
-						}
-						
-					}
-					
-				}
-				
-				$fdp_used = empty($fdp_used) ? 0 : $fdp_used;
-				$object->addline("Montant total des frais de port", $fdp_used, 1, 0, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $date_start, $date_end);
-				
-			}*/
+			
+            
+            
 
 		}
 		
 		return 0;
 	}
-
+   function formObjectOptions($parameters, &$object, &$action, $hookmanager) {  
+        global $langs,$db;
+     
+        print '<script type="text/javascript">
+                $(document).ready(function() { ';
+     
+        foreach($object->lines as &$line) {
+            
+            if($line->fk_product_type ==0 && $line->fk_product>0 ) {
+                
+                dol_include_once('/product/class/product.class.php','Product');
+                
+                $p=new Product($db);
+                $p->fetch($line->fk_product);
+                
+                if($p->id>0) {
+                    
+                    $weight_kg = $p->weight * pow(10, $p->weight_units);
+                    $id_line = !empty($line->id) ? $line->id : $line->rowid;
+                    
+                    if(!empty($weight_kg)) {
+                        print '$("tr#row-'.$id_line.' td:first").append(" - '.$langs->trans('Weight').' : '.$weight_kg.'Kg");';    
+                    }
+                    
+                   
+                    
+                }
+                
+                
+            }
+            
+        }
+        
+        print '});
+        </script>';
+        
+        return 0;
+    }
 }
