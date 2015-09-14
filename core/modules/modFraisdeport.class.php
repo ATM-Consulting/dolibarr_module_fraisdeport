@@ -433,7 +433,7 @@ class modFraisdeport extends DolibarrModules
      */
     public function init($options = '')
     {
-        global $db;
+        global $db,$conf;
         	
         $sql = array();
 
@@ -445,6 +445,48 @@ class modFraisdeport extends DolibarrModules
 		$ext = new ExtraFields($db);
 		$res = $ext->addExtraField("use_frais_de_port", 'Automatisation des frais de port', 'select', 0, "", 'propal', 0, 0, '', array("options" =>array("Oui" => "Oui", "Non" => "Non")));
 		$res = $ext->addExtraField("use_frais_de_port", 'Automatisation des frais de port', 'select', 0, "", 'commande', 0, 0, '', array("options" =>array("Oui" => "Oui", "Non" => "Non")));
+		
+		define('INC_FROM_DOLIBARR', true);
+		
+		dol_include_once('/fraisdeport/config.php');
+		dol_include_once('/fraisdeport/class/fraisdeport.class.php');
+		
+		$PDOdb=new TPDOdb;
+		$o=new TFraisDePort;
+		$o->init_db_by_vars($PDOdb);
+		
+		if(!empty($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY)) {
+			
+			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+			
+			foreach($TFraisDePort as $fdp) {
+				
+				$o=new TFraisDePort;
+				$o->palier = $fdp['weight'];
+				$o->fdp = $fdp['fdp'];
+				$o->zip = $fdp['zip'];
+				$o->type='WEIGHT';
+				$o->save($PDOdb);
+				
+			}
+			
+			
+			dolibarr_del_const($db, 'FRAIS_DE_PORT_WEIGHT_ARRAY');
+		}
+		
+		if(!empty($conf->global->FRAIS_DE_PORT_ARRAY)) {
+			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_ARRAY);
+			foreach($TFraisDePort as $palier=>$fdp) {
+				$o=new TFraisDePort;
+				$o->palier = $palier;
+				$o->fdp = $fdp;
+				$o->type='AMOUNT';
+				$o->save($PDOdb);
+				
+			}
+			
+			dolibarr_del_const($db, 'FRAIS_DE_PORT_ARRAY');
+		}
 		
         return $this->_init($sql, $options);
     }

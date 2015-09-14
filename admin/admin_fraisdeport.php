@@ -23,10 +23,11 @@
  * 				Put some comments here
  */
 // Dolibarr environment
-$res = @include("../../main.inc.php"); // From htdocs directory
-if (! $res) {
-    $res = @include("../../../main.inc.php"); // From "custom" directory
-}
+
+require('../config.php');
+dol_include_once('/fraisdeport/class/fraisdeport.class.php');
+
+$PDOdb=new TPDOdb;
 
 global $db;
 
@@ -58,29 +59,53 @@ switch ($action) {
         
         $TPallierWeight = GETPOST('TPallierWeight');
         
-        foreach($TPallierWeight as $k=>$fdp) {
-            if(empty($fdp['fdp'])) {
-                unset($TPallierWeight[$k]);
-            }
+        foreach($TPallierWeight as $id=>$fdp) {
+            
+			$o=new TFraisDePort;
+			if($id>0) $o->load($PDOdb, $id);
+			
+			$o->set_values($fdp);
+			$o->type='WEIGHT';
+			
+			if(!empty($o->fdp)) {
+				$o->save($PDOdb);	
+			}
+			else{
+				$o->delete($PDOdb);
+			}
         }
         
-        usort($TPallierWeight,'_weight_zip');
-        
-        dolibarr_set_const($db, 'FRAIS_DE_PORT_WEIGHT_ARRAY', serialize($TPallierWeight));
         
         setEventMessage($langs->trans('FDPSaved'));
         
         break;
-    
+    case 'save_amount':
+        
+        $TPallierAmount = GETPOST('TPallierAmount');
+       
+        foreach($TPallierAmount as $id=>$fdp) {
+           $o=new TFraisDePort;
+			if($id>0) $o->load($PDOdb, $id);
+			
+			$o->set_values($fdp);
+			
+			$o->type='AMOUNT';
+			
+			if(!empty($o->fdp)) {
+				$o->save($PDOdb);	
+			}
+			else{
+				$o->delete($PDOdb);
+			}
+			
+        }
+        
+        setEventMessage($langs->trans('FDPSaved'));
+        
+        break;
 	case 'save':
 		$TPallier = $_REQUEST['TPallier'];
-		$TFpd = $_REQUEST['TFdp'];
-		if(!empty($TPallier) && _saveFDP($db, $TPallier, $TFpd)) {
-			
-			setEventMessage($langs->trans('FDPSaved'));
-			
-		}
-        
+		
         $TDivers = isset($_REQUEST['TDivers']) ? $_REQUEST['TDivers'] : array();
         
         foreach($TDivers as $name=>$param) {
@@ -115,9 +140,6 @@ switch ($action) {
  * View
  */ 
 
-$TFraisDePort = unserialize(dolibarr_get_const($db, 'FRAIS_DE_PORT_ARRAY'));
-$TFraisDePortWeight = unserialize(dolibarr_get_const($db, 'FRAIS_DE_PORT_WEIGHT_ARRAY'));
-
 //print_r($TFraisDePort);
  
 $page_name = "FraisDePortSetup";
@@ -138,39 +160,6 @@ dol_fiche_head(
     "fraisdeport@fraisdeport"
 );
 
-// Setup page goes here
-//echo $langs->trans("FraisDePortSetup");
-function _weight_zip(&$a,&$b) {
-    
-    if($a['weight']<$b['weight']) return -1;
-    else if($a['weight']>$b['weight']) return 1;
-    else  {
-        if($a['zip']<$b['zip']) return -1;
-        else if($a['zip']>$b['zip']) return 1;
-    }
-    
-    return 0;
-}
-function _saveFDP(&$db, $TPallier, $TFpd) {
-	
-	$i = 0;
-	$TFraisDePort = array();
-	
-	while($i < count($TPallier)) {
-		
-		if(!empty($TPallier[$i]) && !empty($TFpd[$i]) && is_numeric($TPallier[$i]) && is_numeric($TFpd[$i])) {
-
-			$TFraisDePort[$TPallier[$i]] = $TFpd[$i];
-
-		}
-		
-		$i++;
-		
-	}
-	
-	return dolibarr_set_const($db, 'FRAIS_DE_PORT_ARRAY', serialize($TFraisDePort));
-	
-}
 
 function _saveIDServiceToUse($db, $idservice_to_use) {
 	
@@ -193,32 +182,32 @@ print '<td width="20%">'.$langs->trans('EurosPallier').'</td>';
 print '<td>'.$langs->trans('TarifFraisDePort').'</td>';
 print '</tr>';
 
-print '<input type="hidden" name="action" value="save" />';
+print '<input type="hidden" name="action" value="save_amount" />';
 
 $i = 0;
+$TFraisDePortAmount = TFraisDePort::getAll($PDOdb,'AMOUNT');
 
-if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-	
-	foreach($TFraisDePort as $pallier => $fdp) {
-		print '<tr>';
-		
-		$pallier = array_keys($TFraisDePort);
+$TClass=array(1=>'pair', -1=>'impair' ); $class = 1;
 
-		print '<td><input type="text" name="TPallier['.$i.']" value="'.$pallier[$i].'" /></td>';
-		
-		print '<td><input type="text" name="TFdp['.$i.']" value="'.$TFraisDePort[$pallier[$i]].'" /></td>';
+if(is_array($TFraisDePortAmount) && count($TFraisDePortAmount) > 0) {
+            
+            foreach($TFraisDePortAmount as $i => $fdp) {
+               print '<tr class="'.$TClass[$class].'">';
+                
+                print '<td><input type="text" name="TPallierAmount['.$fdp->getId().'][palier]" value="'.$fdp->palier.'" />'.$conf->global->currency.'</td>';
+                print '<td><input type="text" name="TPallierAmount['.$fdp->getId().'][fdp]" value="'.$fdp->fdp.'" /></td>';
+                print '</tr>';
+                $class = -$class;
+            }   
+            
+        }
+        
+        print '<tr class="'.$TClass[$class].'">';
+        
+        print '<td><input type="text" name="TPallierAmount[0][palier]" />'.$conf->global->currency.'</td>';
+        print '<td><input type="text" name="TPallierAmount[0][fdp]" /></td>';
+        
         print '</tr>';
-		$i++;
-	}	
-	
-}
-
-print '<tr>';
-
-print '<td><input type="text" name="TPallier['.$i.']" /></td>';
-print '<td><input type="text" name="TFdp['.$i.']" /></td>';
-
-print '</tr>';
 
 print '</table>';
 
@@ -227,7 +216,7 @@ print '<div class="tabsAction"><input class="butAction" type="SUBMIT" name="subS
 print '</form>';
 
 if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
-        print '<form name="formFraisDePortLevel" method="POST" action="'.$_SERVER['PHP_SELF'].'" />';
+        print '<form name="formFraisDePortLevel2" method="POST" action="'.$_SERVER['PHP_SELF'].'" />';
         print '<input type="hidden" name="action" value="save_weight" />';
         print '<table class="noborder">';
         print '<tr class="liste_titre">';
@@ -236,26 +225,28 @@ if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
         print '<td>'.$langs->trans('TarifFraisDePort').'</td>';
         print '</tr>';
         
+		$TFraisDePortWeight = TFraisDePort::getAll($PDOdb,'WEIGHT');
+		
         if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
             
             foreach($TFraisDePortWeight as $i => $fdp) {
-               print '<tr>';
+               print '<tr class="'.$TClass[$class].'">';
                 
-                print '<td><input type="text" name="TPallierWeight['.$i.'][weight]" value="'.$fdp['weight'].'" />Kg</td>';
-                print '<td><input type="text" name="TPallierWeight['.$i.'][zip]" value="'.$fdp['zip'].'" /></td>';
+                print '<td><input type="text" name="TPallierWeight['.$fdp->getId().'][palier]" value="'.$fdp->palier.'" />Kg</td>';
+                print '<td><input type="text" name="TPallierWeight['.$fdp->getId().'][zip]" value="'.$fdp->zip.'" /></td>';
                 
-                print '<td><input type="text" name="TPallierWeight['.$i.'][fdp]" value="'.$fdp['fdp'].'" /></td>';
+                print '<td><input type="text" name="TPallierWeight['.$fdp->getId().'][fdp]" value="'.$fdp->fdp.'" /></td>';
                 print '</tr>';
-                
+                $class = -$class;
             }   
             
         }
         
-        print '<tr>';
+        print '<tr class="'.$TClass[$class].'">';
         
-        print '<td><input type="text" name="TPallierWeight['.($i+1).'][weight]" />Kg</td>';
-        print '<td><input type="text" name="TPallierWeight['.($i+1).'][zip]" /></td>';
-        print '<td><input type="text" name="TPallierWeight['.($i+1).'][fdp]" /></td>';
+        print '<td><input type="text" name="TPallierWeight[0][palier]" />Kg</td>';
+        print '<td><input type="text" name="TPallierWeight[0][zip]" /></td>';
+        print '<td><input type="text" name="TPallierWeight[0][fdp]" /></td>';
         
         print '</tr>';
         
