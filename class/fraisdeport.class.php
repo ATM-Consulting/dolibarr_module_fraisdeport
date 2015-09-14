@@ -16,7 +16,7 @@ class TFraisDePort extends TObjetStd {
          
     }
 	
-	static function getAll(&$PDOdb, $type='AMOUNT') {
+	static function getAll(&$PDOdb, $type='AMOUNT', $asArray=false) {
 		
 		$TFdp = array();
 		$Tab = $PDOdb->ExecuteAsArray("SELECT rowid FROM ".MAIN_DB_PREFIX."frais_de_port WHERE type='".$type."' ORDER BY fk_shipment_mode,zip, palier ");
@@ -25,7 +25,7 @@ class TFraisDePort extends TObjetStd {
 			$o=new TFraisDePort;
 			$o->load($PDOdb, $row->rowid );
 			
-			$TFdp[] = $o;			
+			$TFdp[] = ($asArray) ? (Array)$o : $o;			
 			
 		}
 		

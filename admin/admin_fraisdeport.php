@@ -223,10 +223,11 @@ if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
         print '<td width="20%">'.$langs->trans('WeightPallier').'</td>';
         print '<td width="20%">'.$langs->trans('Zip').'</td>';
         print '<td>'.$langs->trans('TarifFraisDePort').'</td>';
+		 print '<td>'.$langs->trans('ShipmentMode').'</td>';
         print '</tr>';
         
 		$TFraisDePortWeight = TFraisDePort::getAll($PDOdb,'WEIGHT');
-		
+		$f=new Form($db);
         if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
             
             foreach($TFraisDePortWeight as $i => $fdp) {
@@ -236,7 +237,11 @@ if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
                 print '<td><input type="text" name="TPallierWeight['.$fdp->getId().'][zip]" value="'.$fdp->zip.'" /></td>';
                 
                 print '<td><input type="text" name="TPallierWeight['.$fdp->getId().'][fdp]" value="'.$fdp->fdp.'" /></td>';
-                print '</tr>';
+				
+				print '<td>';
+				$f->selectShippingMethod($fdp->fk_shipment_mode, 'TPallierWeight['.$fdp->getId().'][fk_shipment_mode]', '', 1);
+				
+                print '</td></tr>';
                 $class = -$class;
             }   
             
@@ -247,8 +252,10 @@ if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
         print '<td><input type="text" name="TPallierWeight[0][palier]" />Kg</td>';
         print '<td><input type="text" name="TPallierWeight[0][zip]" /></td>';
         print '<td><input type="text" name="TPallierWeight[0][fdp]" /></td>';
-        
-        print '</tr>';
+        print '<td>';
+				$f->selectShippingMethod(-1, 'TPallierWeight[0][fk_shipment_mode]', '', 1);
+				
+        print '</td></tr>';
         
         print '</table>';
         

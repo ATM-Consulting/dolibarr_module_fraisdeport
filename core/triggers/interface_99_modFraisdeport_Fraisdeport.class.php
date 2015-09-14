@@ -128,10 +128,14 @@ class InterfaceFraisdeport
 			echo "</pre>";*/
 				
 			dol_include_once('core/lib/admin.lib.php');
-					
+			
+			define('INC_FROM_DOLIBARR',true);
+			dol_include_once('/fraisdeport/config.php');		
+			dol_include_once('/fraisdeport/fraisdeport.class.php');
+			$PDOdb=new TPDOdb;
 			// On récupère les frais de port définis dans la configuration du module
-			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_ARRAY);
-            $TFraisDePortWeight = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+			$TFraisDePort = TFraisDePort::getAll($PDOdb, 'AMOUNT', true);
+            
             $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
 			
 			// On vérifie s'il n'y a pas déjà les frais de port dans le document (double validation ou ajout manuel...)
@@ -152,9 +156,9 @@ class InterfaceFraisdeport
 				// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
 				$fdp_used_montant = 0;
 				if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-					foreach ($TFraisDePort as $pallier => $fdp) {
-						if($object->total_ht < $pallier) {
-							$fdp_used_montant = $fdp;
+					foreach ($TFraisDePort as $fdp) {
+						if($object->total_ht < $fdp['palier']) {
+							$fdp_used_montant = $fdp['fdp'];
 							break;
 						}
 					}
@@ -162,6 +166,8 @@ class InterfaceFraisdeport
 				
                 $fdp_used_weight = 0;
                 if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
+                	$TFraisDePortWeight = TFraisDePort::getAll($PDOdb, 'WEIGHT', true);
+					
                     $total_weight = 0;
                     foreach($object->lines as &$line) {
                         if($line->fk_product_type ==0 && $line->fk_product>0 ) {
@@ -177,7 +183,7 @@ class InterfaceFraisdeport
                     
                     if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
                         foreach ($TFraisDePortWeight as $fdp) {
-                            if($total_weight >= $fdp['weight'] && ($fdp['fdp']>$fdp_used_weight || empty($fdp_used_weight) ) ) {
+                            if($total_weight >= $fdp['palier'] && ($fdp['fdp']>$fdp_used_weight || empty($fdp_used_weight) ) ) {
                                 if (empty($fdp['zip']) 
                                     || (!empty( $fdp['zip'] ) && strpos( $object->client->zip, $fdp['zip']) === 0 ) ){
                                         $fdp_used_weight = $fdp['fdp'];        
