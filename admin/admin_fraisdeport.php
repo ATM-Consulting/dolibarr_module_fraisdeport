@@ -1,5 +1,5 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
+/* Module de gestion des frais de port
  * Copyright (C) 2013 ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -50,9 +50,6 @@ $action = GETPOST('action', 'alpha');
 /*
  * Actions
  */
-
-$action = $_REQUEST['action'];
-
 
 switch ($action) {
     case 'save_weight':
