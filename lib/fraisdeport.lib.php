@@ -36,6 +36,19 @@ function fraisdeportAdminPrepareHead()
     $head[$h][1] = $langs->trans("Settings");
     $head[$h][2] = 'settings';
     $h++;
+    $head[$h][0] = dol_buildpath("/fraisdeport/admin/fdp.php?type=AMOUNT", 1);
+    $head[$h][1] = $langs->trans("Price");
+    $head[$h][2] = 'AMOUNT';
+    $h++;
+	
+	if(!empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
+	    $head[$h][0] = dol_buildpath("/fraisdeport/admin/fdp.php?type=WEIGHT", 1);
+	    $head[$h][1] = $langs->trans("Weight");
+	    $head[$h][2] = 'WEIGHT';
+	    $h++;
+		
+	}
+
     $head[$h][0] = dol_buildpath("/fraisdeport/admin/import.php", 1);
     $head[$h][1] = $langs->trans("Import");
     $head[$h][2] = 'import';

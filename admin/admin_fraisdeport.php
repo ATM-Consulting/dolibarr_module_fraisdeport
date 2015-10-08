@@ -170,7 +170,7 @@ function _saveIDServiceToUse($db, $idservice_to_use) {
 	return false;
 	
 }
-
+/*
 print '<form name="formFraisDePortLevel" method="POST" action="'.dol_buildpath('/fraisdeport/admin/admin_fraisdeport.php', 2).'" />';
 
 print '<table class="noborder">';
@@ -261,7 +261,7 @@ if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
         print '</form>';
 
 }
-        
+*/        
 
 print '<form name="formIDServiceToUse" method="POST" action="" />';
 
