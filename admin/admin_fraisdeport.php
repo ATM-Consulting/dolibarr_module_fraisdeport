@@ -52,68 +52,7 @@ $action = GETPOST('action', 'alpha');
  */
 
 switch ($action) {
-    case 'save_weight':
-        
-        $TPallierWeight = GETPOST('TPallierWeight');
-        
-        foreach($TPallierWeight as $id=>$fdp) {
-            
-			$o=new TFraisDePort;
-			if($id>0) $o->load($PDOdb, $id);
-			
-			$o->set_values($fdp);
-			$o->type='WEIGHT';
-			
-			if(!empty($o->fdp)) {
-				$o->save($PDOdb);	
-			}
-			else{
-				$o->delete($PDOdb);
-			}
-        }
-        
-        
-        setEventMessage($langs->trans('FDPSaved'));
-        
-        break;
-    case 'save_amount':
-        
-        $TPallierAmount = GETPOST('TPallierAmount');
-       
-        foreach($TPallierAmount as $id=>$fdp) {
-           $o=new TFraisDePort;
-			if($id>0) $o->load($PDOdb, $id);
-			
-			$o->set_values($fdp);
-			
-			$o->type='AMOUNT';
-			
-			if(!empty($o->fdp)) {
-				$o->save($PDOdb);	
-			}
-			else{
-				$o->delete($PDOdb);
-			}
-			
-        }
-        
-        setEventMessage($langs->trans('FDPSaved'));
-        
-        break;
-	case 'save':
-		$TPallier = $_REQUEST['TPallier'];
-		
-        $TDivers = isset($_REQUEST['TDivers']) ? $_REQUEST['TDivers'] : array();
-        
-        foreach($TDivers as $name=>$param) {
-        
-            dolibarr_set_const($db, $name, $param);
-            
-        }
-        if(!empty($TDivers)) setEventMessage( $langs->trans('RegisterSuccess') );
-        
-        
-		break;
+   
 		
 	case 'saveIDServiceToUse':
 		if(_saveIDServiceToUse($db, $_REQUEST['idservice'])) {

@@ -49,14 +49,15 @@
 function fiche(&$fdp, $type, $mode) {
 	global $conf, $langs, $db;
 	
-	llxHeader();
+	$page_name = "FraisDePortSetup";
+	llxHeader('', $langs->trans($page_name));	
 	$linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 	    . $langs->trans("BackToModuleList") . '</a>';
 	print_fiche_titre($langs->trans($page_name), $linkback);
 	
 	// Configuration header
 	$head = fraisdeportAdminPrepareHead();
-	dol_fiche_head(  $head,  $type,  $langs->trans("Module104150Name"),   0,   "fraisdeport@fraisdeport" );	
+	dol_fiche_head(  $head,  $type,  $page_name,   0,   "fraisdeport@fraisdeport" );	
 	$form = new TFormCore('auto', 'form1','post');
 	$form->Set_typeaff($mode);
 	
@@ -101,15 +102,17 @@ function fiche(&$fdp, $type, $mode) {
 function liste($type) {
 	global $conf, $langs;
 	
+	$page_name = "FraisDePortSetup";
+	llxHeader('', $langs->trans($page_name));	
 	
-	llxHeader();
 	$linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 	    . $langs->trans("BackToModuleList") . '</a>';
 	print_fiche_titre($langs->trans($page_name), $linkback);
 	
 	// Configuration header
 	$head = fraisdeportAdminPrepareHead();
-	dol_fiche_head(  $head,  $type,  $langs->trans("Module104150Name"),   0,   "fraisdeport@fraisdeport" );	
+
+	dol_fiche_head(  $head,  $type,  $page_name,   0,   "fraisdeport@fraisdeport" );	
 	
 
 	$l=new TListviewTBS('lPrice');
