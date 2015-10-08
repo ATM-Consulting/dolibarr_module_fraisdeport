@@ -27,5 +27,7 @@
 		exit;
 	}
 
-	
+	if(ABRICOT_VERSION<1.4) {
+		exit('Module Abricot : You need at least the 1.4 version, please update <a href="http://wiki.atm-consulting.fr/index.php/Accueil#Abricot" target="_blank">Abricot</a>');
+	}
 
