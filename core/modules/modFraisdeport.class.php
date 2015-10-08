@@ -127,7 +127,18 @@ class modFraisdeport extends DolibarrModules
             //		'chaine',
             //		'myvalue',
             //		'This is a constant to add',
-            //		1
+            //		1$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+			
+			foreach($TFraisDePort as $fdp) {
+				
+				$o=new TFraisDePort;
+				$o->palier = $fdp['weight'];
+				$o->fdp = $fdp['fdp'];
+				$o->zip = $fdp['zip'];
+				$o->type='WEIGHT';
+				$o->save($PDOdb);
+				
+			}
             //	),
             //	1=>array(
             //		'MYMODULE_MYNEWCONST2',
@@ -185,7 +196,18 @@ class modFraisdeport extends DolibarrModules
           // Label of tables
           'tablib'=>array("Table1","Table2","Table3"),
           // Request to select fields
-          'tabsql'=>array(
+          'tabsql'=>array($TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+			
+			foreach($TFraisDePort as $fdp) {
+				
+				$o=new TFraisDePort;
+				$o->palier = $fdp['weight'];
+				$o->fdp = $fdp['fdp'];
+				$o->zip = $fdp['zip'];
+				$o->type='WEIGHT';
+				$o->save($PDOdb);
+				
+			}
           'SELECT f.rowid as rowid, f.code, f.label, f.active'
           . ' FROM ' . MAIN_DB_PREFIX . 'table1 as f',
           'SELECT f.rowid as rowid, f.code, f.label, f.active'
@@ -391,7 +413,18 @@ class modFraisdeport extends DolibarrModules
         //	's.code_compta_fournisseur'=>'company',
         //	'f.rowid'=>"invoice",
         //	'f.facnumber'=>"invoice",
-        //	'f.datec'=>"invoice",
+        //	'f.datec'=>"invoice",$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+			
+			foreach($TFraisDePort as $fdp) {
+				
+				$o=new TFraisDePort;
+				$o->palier = $fdp['weight'];
+				$o->fdp = $fdp['fdp'];
+				$o->zip = $fdp['zip'];
+				$o->type='WEIGHT';
+				$o->save($PDOdb);
+				
+			}
         //	'f.datef'=>"invoice",
         //	'f.total'=>"invoice",
         //	'f.total_ttc'=>"invoice",

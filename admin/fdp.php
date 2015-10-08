@@ -145,6 +145,11 @@ function liste($type) {
 		,'eval'=>array(
 			'fk_shipment_mode'=>'showShipmentMode(@val@)'
 		)
+		,'search'=>array(
+			'palier'=>true
+			,'zip'=>true
+			,'fdp'=>true
+		)
 	),array(
 		':type'=>$type
 	));
