@@ -70,7 +70,7 @@ if($action === 'import') {
 			$data['ok'] = 1;
 			
 			$o = new TFraisDePort;
-			$o->zip = $data[0];
+			$o->zip = str_pad($data[0],2,'0',STR_PAD_LEFT);
 			$o->type = $data[1]>0 ? 'WEIGHT' : 'AMOUNT';
 			$o->palier = $data[1]>0 ? $data[1] : $data[2];
 			$o->fdp = price2num($data[3],5);
