@@ -12,50 +12,81 @@ class TFraisDePort extends TObjetStd {
         
         parent::_init_vars();
         parent::start();    
-        
          
     }
 	
-	static function getAll(&$PDOdb, $type='AMOUNT', $asArray=false) {
+	static function getAll(&$PDOdb, $type='AMOUNT', $asArray=false, $with_zip = false, $with_fk_shipment_mode = false) {
 		
 		$TFdp = array();
-		$Tab = $PDOdb->ExecuteAsArray("SELECT rowid FROM ".MAIN_DB_PREFIX."frais_de_port WHERE type='".$type."' ORDER BY fk_shipment_mode,zip, palier ");
+		
+		$sql = "SELECT rowid,palier,fdp,zip,fk_shipment_mode
+		FROM ".MAIN_DB_PREFIX."frais_de_port WHERE type='".$type."' 
+		";
+		
+		if($type == 'AMOUNT') $sql.="ORDER BY palier ASC,zip DESC ,fk_shipment_mode DESC";
+		else $sql.="ORDER BY palier DESC, zip DESC, fk_shipment_mode DESC";
+		
+		$Tab = $PDOdb->ExecuteAsArray($sql);
+		
+		$last_palier = 0;
 		foreach($Tab as &$row) {
 			
-			$o=new TFraisDePort;
-			$o->load($PDOdb, $row->rowid );
-			
-			$TFdp[] = ($asArray) ? (Array)$o : $o;			
+				
+			if($asArray) {
+				$row->last_palier = $last_palier;
+				
+				$o = (array)$row;
+				
+				if($last_palier < $row->palier) $last_palier = $row->palier;
+			}
+			else {
+				$o=new TFraisDePort;
+				$o->load($PDOdb, $row->rowid );
+				
+			}		
+			$TFdp[] = $o;			
 			
 		}
 		
 		return $TFdp;
 	}
-	static function getFDP(&$PDOdb, $type, $total) {
+	static function getFDP(&$PDOdb, $type, $total, $zip='', $fk_shipment_mode = 0) {
 		
-		$TFraisDePort = TFraisDePort::getAll($PDOdb, $type, true);
-		
-		$fdp_used = 0;
+		$TFraisDePort = TFraisDePort::getAll($PDOdb, $type, true, !empty($zip), !empty($fk_shipment_mode));
+		$fdp_used = 0; $find = false;
         if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-        	
-            foreach ($TFraisDePort as &$fdp) {
-            	
-                if($type === 'WEIGHT' && $total >= $fdp['palier'] && ($fdp['fdp']>$fdp_used || empty($fdp_used) ) ) {
-                    if (empty($fdp['zip']) 
-                        || (!empty( $fdp['zip'] ) && strpos( $object->client->zip, $fdp['zip']) === 0 ) ){
-                            $fdp_used = $fdp['fdp'];        
-                    } 
+        		
+        	foreach ($TFraisDePort as &$fdp) {
+            		
+            	if($type === 'WEIGHT' && $total >= $fdp['palier'] && ($fdp['fdp']>$fdp_used || empty($fdp_used) )) {
+                	
+					if( (!empty($zip) && !empty( $fdp['zip'] ) && strpos($zip,$fdp['zip']) === 0 ) ) {
+						$fdp_used = $fdp['fdp'];
+						$find=true;
+						break;
+					}
+					else if(empty($zip) && empty($fdp['zip'])  ) {
+						// pas de frais de port associé au code poste trouvé avant
+						$find=true;
+						$fdp_used = $fdp['fdp'];
+						break;
+					}
+					
+                    
                 }
 				else if($type==='AMOUNT') {
 					if($total < $fdp['palier'] && ($fdp['fdp']<$fdp_used || empty($fdp_used) ) ) {
 							$fdp_used = $fdp['fdp'];
+							$find = true;
 					}
 				}
 				
             }
         }
 		
-		return $fdp_used;
+		if(!$find && !empty($zip)) return TFraisDePort::getFDP($PDOdb, $type, $total);
+		else return $fdp_used;
+		
 	}
 	static function alreadyAdded(&$object) {
 		global $conf;

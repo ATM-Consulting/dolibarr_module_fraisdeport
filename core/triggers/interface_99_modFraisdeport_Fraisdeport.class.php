@@ -146,13 +146,15 @@ class InterfaceFraisdeport
                 $fdp_used_weight = 0;
                 if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
                 	$total_weight = TFraisDePort::getTotalWeight($object);
-					$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $object->total_ht);
+					$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->client->zip);
+					
 				}
                
                 $fdp_used = max($fdp_used_weight, $fdp_used_montant );
-              
-			    $p = new Product($db);
+             	
+				$p = new Product($db);
 				$p->fetch($fk_product);
+				
 				$object->statut = 0;
 				
 				$used_tva = ($object->client->tva_assuj == 1) ? $p->tva_tx : 0;
