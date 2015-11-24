@@ -47,38 +47,44 @@ if (! $user->admin) {
 // Parameters
 $action = GETPOST('action', 'alpha');
 
-/*
- * Actions
- */
+$etape = 1;
 
-switch ($action) {
-   
-		
-	case 'saveIDServiceToUse':
-		if(_saveIDServiceToUse($db, $_REQUEST['idservice'])) {
+if($action === 'import') {
+	if(isset($_REQUEST['bt_preview']) && !empty($_FILES['f1'])  && $_FILES['f1']['error'] == 0) {
+		$etape = 2;
+		$TData=array();
+		$f1 = fopen($_FILES['f1']['tmp_name'],'r') or die('Fichier illisible'); 
+		while($ligne = fgetcsv($f1,4096,';', '"') ) {
 			
-			setEventMessage($langs->trans('IDServiceSaved'));
-			
-		} else {
-			
-			setEventMessage($langs->trans('IDServiceNotSaved'), 'errors');
+			$TData[] = $ligne;
 			
 		}
 		
-		break;
-	
-	default:
+	}	
+	else if($_REQUEST['bt_import'] && !empty($_REQUEST['data'])) {
+		$TData = unserialize($_REQUEST['data']);
+		$etape = 3;
 		
-		break;
+		foreach($TData as &$data) {
+			
+			$data['ok'] = 1;
+			
+			$o = new TFraisDePort;
+			$o->zip = str_pad($data[0],2,'0',STR_PAD_LEFT);
+			$o->type = $data[1]>0 ? 'WEIGHT' : 'AMOUNT';
+			$o->palier = $data[1]>0 ? $data[1] : $data[2];
+			$o->fdp = price2num($data[3],5);
+			$o->save($PDOdb);
+			
+		}
+		
+	}	
 }
- 
-/*
- * View
- */ 
 
-//print_r($TFraisDePort);
- 
-$page_name = "FraisDePortSetup";
+
+
+
+$page_name = "FraisDePortImport";
 llxHeader('', $langs->trans($page_name));
 
 // Subheader
@@ -90,61 +96,66 @@ print_fiche_titre($langs->trans($page_name), $linkback);
 $head = fraisdeportAdminPrepareHead();
 dol_fiche_head(
     $head,
-    'settings',
+    'import',
     $langs->trans("Module104150Name"),
     0,
     "fraisdeport@fraisdeport"
 );
 
+$form = new TFormCore('auto', 'formImport', 'post', true);
+echo $form->hidden('action','import');
 
-function _saveIDServiceToUse($db, $idservice_to_use) {
+print_titre('Etape 1');
+
+echo $form->fichier('Fichier à importer', 'f1', '', 50);
+echo $form->btsubmit('Prévisualiser', 'bt_preview');
+?>
+<br /><small>(Colonnes : n° département,poids,palier,montant - séparateur : ';')</small>
+<?php
+
+if($etape>1) {
+	print_titre('Etape 2');
 	
-	if(!empty($idservice_to_use)) {
+	echo $form->zonetexte('', 'data', serialize($TData), 80,5, ' style="display:none;" ');
+	
+	?>
+	<table class="liste">
+		<tr class="liste_titre">
+			<td>Département</td>
+			<td>Poids</td>
+			<td>ou Palier</td>
+			<td>Montant</td>
+		</tr>
 		
-		dolibarr_set_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', $idservice_to_use);
-		return true;
+	
+	<?
+	
+	foreach($TData as &$data) {
+		
+		?>
+		<tr class="pair" <?php if(!empty($data['ok'])) echo ' style="background-color:green;" ' ?>>
+			<td><?php echo $data[0] ?></td>
+			<td><?php echo $data[1] ?></td>
+			<td><?php echo $data[2] ?></td>
+			<td><?php echo $data[3] ?></td>
+		</tr>
+		<?
 		
 	}
+
+	?>
+	</table>
+	<?php
 	
-	return false;
-	
+	if($etape == 2)
+		echo $form->btsubmit('Importer', 'bt_import');
+	else 
+		echo 'Import réalisé';
 }
-   
 
-print '<form name="formIDServiceToUse" method="POST" action="" />';
 
-$form = new Form($db);
 
-$form->select_produits(dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE'),'idservice',1,$conf->product->limit_size,$buyer->price_level);
-
-print '<input type="hidden" name="action" value="saveIDServiceToUse" />';
-
-print '<input type="SUBMIT" name="subIDServiceToUse" value="Utiliser ce service" />';
-
-print '</form>';
-
-?>
-<br />
-<table width="100%" class="noborder" style="background-color: #fff;">
-    <tr class="liste_titre">
-        <td colspan="2"><?php echo $langs->trans('Parameters') ?></td>
-    </tr>
-<tr>
-    <td><?php echo $langs->trans('UseWeight') ?></td><td><?php
-    
-        if($conf->global->FRAIS_DE_PORT_USE_WEIGHT==0) {
-            
-             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-            
-        }
-        else {
-             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-            
-        }
-    
-    ?></td>             
-</tr>
-</table><?
+$form->end();
 
 llxFooter();
 

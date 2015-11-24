@@ -128,68 +128,33 @@ class InterfaceFraisdeport
 			echo "</pre>";*/
 				
 			dol_include_once('core/lib/admin.lib.php');
-					
-			// On récupère les frais de port définis dans la configuration du module
-			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_ARRAY);
-            $TFraisDePortWeight = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
-            $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
 			
-			// On vérifie s'il n'y a pas déjà les frais de port dans le document (double validation ou ajout manuel...)
-			$fdpAlreadyInDoc = false;
-			foreach($object->lines as $line) {
-				if(!empty($line->fk_product) && $line->fk_product == $fk_product) {
-					$fdpAlreadyInDoc = true;
-                    break;
-				}
-			}
+			define('INC_FROM_DOLIBARR',true);
+			dol_include_once('/fraisdeport/config.php');		
+			dol_include_once('/fraisdeport/class/fraisdeport.class.php');
+			$PDOdb=new TPDOdb;
+			// On récupère les frais de port définis dans la configuration du module
+			
+            $fdpAlreadyInDoc = TFraisDePort::alreadyAdded( $object );
+			
+			$fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
 			
 			if(!$fdpAlreadyInDoc && !empty($fk_product) && $object->array_options['options_use_frais_de_port'] === 'Oui') {
-			     dol_include_once('/product/class/product.class.php','Product');
-                
-				// On les range du pallier le plus petit au plus grand
-				ksort($TFraisDePort);
-	
-				// On parcoure les pallier du plus petit au plus grand pour chercher si le montant de la commande est inférieur à l'un des palliers
-				$fdp_used_montant = 0;
-				if(is_array($TFraisDePort) && count($TFraisDePort) > 0) {
-					foreach ($TFraisDePort as $pallier => $fdp) {
-						if($object->total_ht < $pallier) {
-							$fdp_used_montant = $fdp;
-							break;
-						}
-					}
-				}
+			    dol_include_once('/product/class/product.class.php','Product');
+                $fdp_used_montant = TFraisDePort::getFDP($PDOdb, 'AMOUNT', $object->total_ht);
 				
                 $fdp_used_weight = 0;
                 if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
-                    $total_weight = 0;
-                    foreach($object->lines as &$line) {
-                        if($line->fk_product_type ==0 && $line->fk_product>0 ) {
-                            $p=new Product($db);
-                            $p->fetch($line->fk_product);
-                            
-                            if($p->id>0) {
-                                $weight_kg = $p->weight * $line->qty * pow(10, $p->weight_units);
-                                $total_weight+=$weight_kg;
-                            }
-                        }
-                    }
-                    
-                    if(is_array($TFraisDePortWeight) && count($TFraisDePortWeight) > 0) {
-                        foreach ($TFraisDePortWeight as $fdp) {
-                            if($total_weight >= $fdp['weight'] && ($fdp['fdp']>$fdp_used_weight || empty($fdp_used_weight) ) ) {
-                                if (empty($fdp['zip']) 
-                                    || (!empty( $fdp['zip'] ) && strpos( $object->client->zip, $fdp['zip']) === 0 ) ){
-                                        $fdp_used_weight = $fdp['fdp'];        
-                                    } 
-                            }
-                        }
-                    }
-                }
+                	$total_weight = TFraisDePort::getTotalWeight($object);
+					$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->client->zip);
+					
+				}
                
                 $fdp_used = max($fdp_used_weight, $fdp_used_montant );
-                $p = new Product($db);
+             	
+				$p = new Product($db);
 				$p->fetch($fk_product);
+				
 				$object->statut = 0;
 				
 				$used_tva = ($object->client->tva_assuj == 1) ? $p->tva_tx : 0;
@@ -203,7 +168,7 @@ class InterfaceFraisdeport
                 setEventMessage($langs->trans('PortTaxAdded').' : '.price($fdp_used).$conf->currency.' '.$langs->trans('VAT').' '.$used_tva.'%' );
 				
 				$object->fetch($object->id);
-				$object->statut = 1; // TODO à quoi ça sert... Puisqu'il n'ya pas de save... :-|
+				$object->statut = 1; // TODO AA à quoi ça sert... Puisqu'il n'ya pas de save... :-|
 			
 				
 			}
