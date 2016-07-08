@@ -119,7 +119,7 @@ function liste($type) {
 	
 	
 	$sql="SELECT rowid as Id, palier,fdp,zip,fk_shipment_mode,date_maj FROM ".MAIN_DB_PREFIX."frais_de_port 
-			WHERE type=:type";
+			WHERE type='".$type."'";
 	
 	$PDOdb=new TPDOdb;
 	
