@@ -32,7 +32,7 @@ $PDOdb=new TPDOdb;
 global $db;
 
 // Libraries
-dol_include_once("fraisdeport/core/lib/admin.lib.php");
+//dol_include_once("fraisdeport/core/lib/admin.lib.php");
 dol_include_once('fraisdeport/lib/fraisdeport.lib.php');
 dol_include_once('core/lib/admin.lib.php');
 //require_once "../class/myclass.class.php";
@@ -65,6 +65,17 @@ switch ($action) {
 			
 		}
 		
+		break;
+		
+	case 'save':
+		$TDivers = isset($_REQUEST['TDivers']) ? $_REQUEST['TDivers'] : array();
+        
+        foreach($TDivers as $name=>$param) {
+        
+            dolibarr_set_const($db, $name, $param);
+            
+        }
+        if(!empty($TDivers)) setEventMessage( $langs->trans('RegisterSuccess') );
 		break;
 	
 	default:
@@ -138,6 +149,7 @@ print '</form>';
             
         }
         else {
+        	
              ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
             
         }
