@@ -7,6 +7,7 @@
 	
 	$langs->load("admin");
     $langs->load("deliveries");
+	$langs->load("fraisdeport@fraisdeport");
 	
 	$type = GETPOST('type');
 	if(empty($type)) $type = 'AMOUNT';
@@ -39,6 +40,12 @@
 			
 			fiche($fdp, $type, 'edit');
 			
+			break;
+		case 'delete':
+			$fdp->load($PDOdb, GETPOST('id'));
+			$fdp->delete($PDOdb);
+			
+			liste($type);
 			break;
 		default:
 			liste($type);
@@ -118,7 +125,7 @@ function liste($type) {
 	$l=new TListviewTBS('lPrice');
 	
 	
-	$sql="SELECT rowid as Id, palier,fdp,zip,fk_shipment_mode,date_maj FROM ".MAIN_DB_PREFIX."frais_de_port 
+	$sql="SELECT rowid as Id, palier,fdp,zip,fk_shipment_mode,date_maj, '' as action FROM ".MAIN_DB_PREFIX."frais_de_port 
 			WHERE type='".$type."'";
 	
 	$PDOdb=new TPDOdb;
@@ -130,12 +137,10 @@ function liste($type) {
 	echo $l->render($PDOdb, $sql, array(
 		'link'=>array(
 			'Id'=>'<a href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=edit&id=@val@&type='.$type,1).'">@val@</a>'
-		)
+			,'action'=>'<a href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=edit&id=@Id@&type='.$type,1).'">'.img_edit().'</a> <a onclick="if (!window.confirm(\''.$langs->trans('fraisdeport_confirm_delete').'\')) return false;" href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=delete&id=@Id@&type='.$type,1).'">'.img_delete().'</a>'		)
 		,'type'=>array(
 			'fdp'=>'money'
 			,'palier'=>'number'
-			
-			
 			,'date_maj'=>'date'
 		)
 		,'title'=>array(
@@ -162,6 +167,12 @@ function liste($type) {
 	echo '<div class="tabsAction">';
 	echo $form->bt($langs->trans('New'), 'bt_new', ' onclick="document.location.href=\'?type='.$type.'&action=new\' "' );
 	echo '</div>';
+	
+	echo '<style type="text/css">
+		td[field=palier] div, td[field=fdp] div  {
+			text-align:left !important;
+		}
+	</style>';
 	
 	dol_fiche_end();
 	llxFooter();

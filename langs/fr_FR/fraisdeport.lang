@@ -10,3 +10,12 @@ IDServiceNotSaved=Aucun service trouvé...
 PortTaxAdded=Frais de port ajouté
 UseWeight=Gérer les frais de port en fonction du poids
 RegisterSuccess=Paramètres enregistrés avec succès
+
+
+fraisdeport_label_service_to_use=Service existant reflettant les frais de port
+
+FraisDePort=Frais de port à appliquer
+ShipmentMode=Méthode d'expédition
+fraisdeport_confirm_delete=Confirmez-vous la suppression ?
+
+UseWeightInfo=<b>Attention</b><br />si des paliers de prix sont définis ainsi que des paliers par poids, et que votre propal et/ou commande tombe dans un palier de chaque, le comportement par défaut sera d'ajouter les frais les plus élevés

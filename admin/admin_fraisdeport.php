@@ -27,15 +27,10 @@
 require('../config.php');
 dol_include_once('/fraisdeport/class/fraisdeport.class.php');
 
-$PDOdb=new TPDOdb;
-
-global $db;
-
 // Libraries
-//dol_include_once("fraisdeport/core/lib/admin.lib.php");
 dol_include_once('fraisdeport/lib/fraisdeport.lib.php');
 dol_include_once('core/lib/admin.lib.php');
-//require_once "../class/myclass.class.php";
+
 // Translations
 $langs->load("fraisdeport@fraisdeport");
 
@@ -50,44 +45,39 @@ $action = GETPOST('action', 'alpha');
 /*
  * Actions
  */
+$action = GETPOST('action', 'alpha');
 
-switch ($action) {
-   
-		
-	case 'saveIDServiceToUse':
-		if(_saveIDServiceToUse($db, $_REQUEST['idservice'])) {
-			
-			setEventMessage($langs->trans('IDServiceSaved'));
-			
-		} else {
-			
-			setEventMessage($langs->trans('IDServiceNotSaved'), 'errors');
-			
-		}
-		
-		break;
-		
-	case 'save':
-		$TDivers = isset($_REQUEST['TDivers']) ? $_REQUEST['TDivers'] : array();
-        
-        foreach($TDivers as $name=>$param) {
-        
-            dolibarr_set_const($db, $name, $param);
-            
-        }
-        if(!empty($TDivers)) setEventMessage( $langs->trans('RegisterSuccess') );
-		break;
-	
-	default:
-		
-		break;
+if (preg_match('/set_(.*)/',$action,$reg))
+{
+	$code=$reg[1];
+	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	{
+		header("Location: ".$_SERVER["PHP_SELF"]);
+		exit;
+	}
+	else
+	{
+		dol_print_error($db);
+	}
 }
- 
+	
+if (preg_match('/del_(.*)/',$action,$reg))
+{
+	$code=$reg[1];
+	if (dolibarr_del_const($db, $code, 0) > 0)
+	{
+		Header("Location: ".$_SERVER["PHP_SELF"]);
+		exit;
+	}
+	else
+	{
+		dol_print_error($db);
+	}
+}
+
 /*
  * View
- */ 
-
-//print_r($TFraisDePort);
+ */
  
 $page_name = "FraisDePortSetup";
 llxHeader('', $langs->trans($page_name));
@@ -108,56 +98,46 @@ dol_fiche_head(
 );
 
 
-function _saveIDServiceToUse($db, $idservice_to_use) {
-	
-	if(!empty($idservice_to_use)) {
-		
-		dolibarr_set_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', $idservice_to_use);
-		return true;
-		
-	}
-	
-	return false;
-	
-}
-   
+$form=new Form($db);
+$var=false;
+print '<table class="noborder" width="100%">';
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("Parameters").'</td>'."\n";
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
 
-print '<form name="formIDServiceToUse" method="POST" action="" />';
-
-$form = new Form($db);
-
-$form->select_produits(dolibarr_get_const($db, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE'),'idservice',1,$conf->product->limit_size,$buyer->price_level);
-
-print '<input type="hidden" name="action" value="saveIDServiceToUse" />';
-
-print '<input type="SUBMIT" name="subIDServiceToUse" value="Utiliser ce service" />';
-
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("fraisdeport_label_service_to_use").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_FRAIS_DE_PORT_ID_SERVICE_TO_USE">';
+$form->select_produits($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', 1, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1);
+print '&nbsp;<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
+print '</td></tr>';
 
-?>
-<br />
-<table width="100%" class="noborder" style="background-color: #fff;">
-    <tr class="liste_titre">
-        <td colspan="2"><?php echo $langs->trans('Parameters') ?></td>
-    </tr>
-<tr>
-    <td><?php echo $langs->trans('UseWeight') ?></td><td><?php
-    
-        if($conf->global->FRAIS_DE_PORT_USE_WEIGHT==0) {
-            
-             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=1"><?php echo img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
-            
-        }
-        else {
-        	
-             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=0"><?php echo img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
-            
-        }
-    
-    ?></td>             
-</tr>
-</table><?php
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$form->textwithpicto($langs->trans("UseWeight"), $langs->trans("UseWeightInfo")).'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="300">';
+print ajax_constantonoff('FRAIS_DE_PORT_USE_WEIGHT');
+print '</td></tr>';
+print '</table>';
 
-$db->close();
+print '<script type="text/javascript">
+	$(function() {
+		/* do refresh to show or hide weight tab */
+		$("#set_FRAIS_DE_PORT_USE_WEIGHT, #del_FRAIS_DE_PORT_USE_WEIGHT").click(function() {
+			window.location.href=window.location.href;
+		});
+	});
+</script>';
+
 
 llxFooter();
+
+$db->close();
