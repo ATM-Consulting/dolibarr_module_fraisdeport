@@ -128,7 +128,7 @@ if($etape>1) {
 		</tr>
 		
 	
-	<?
+	<?php
 	
 	foreach($TData as &$data) {
 		
@@ -139,7 +139,7 @@ if($etape>1) {
 			<td><?php echo $data[2] ?></td>
 			<td><?php echo $data[3] ?></td>
 		</tr>
-		<?
+		<?php
 		
 	}
 

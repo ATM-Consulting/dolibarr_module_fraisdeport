@@ -89,7 +89,7 @@ function fiche(&$fdp, $type, $mode) {
 			echo $form->btsubmit($langs->trans('Cancel'), 'bt_cancel','','butAction butActionCancel');
 		?>
 	</div>
-	<?
+	<?php
 	
 	
 	

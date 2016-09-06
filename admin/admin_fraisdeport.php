@@ -145,19 +145,19 @@ print '</form>';
     
         if($conf->global->FRAIS_DE_PORT_USE_WEIGHT==0) {
             
-             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=1"><?=img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
+             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=1"><?php echo img_picto($langs->trans("Disabled"),'switch_off'); ?></a><?php
             
         }
         else {
         	
-             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=0"><?=img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
+             ?><a href="?action=save&TDivers[FRAIS_DE_PORT_USE_WEIGHT]=0"><?php echo img_picto($langs->trans("Activated"),'switch_on'); ?></a><?php
             
         }
     
     ?></td>             
 </tr>
-</table><?
-
-llxFooter();
+</table><?php
 
 $db->close();
+
+llxFooter();
