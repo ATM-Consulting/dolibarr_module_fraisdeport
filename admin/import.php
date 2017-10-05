@@ -69,7 +69,6 @@ if($action === 'import') {
 			$Tfdp = new TFraisDePort();
 			$TListfdp= $Tfdp->getAll($PDOdb,'WEIGHT');
 			$i=0;
-			var_dump($TListfdp);
 			foreach ( $TListfdp as $fdp)
 			{
 				$fdp->delete($PDOdb);
