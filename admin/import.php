@@ -62,6 +62,29 @@ if($action === 'import') {
 		
 	}	
 	else if($_REQUEST['bt_import'] && !empty($_REQUEST['data'])) {
+		
+		$ret = array();
+		if(!empty($_REQUEST['clearweight']))
+		{
+			$Tfdp = new TFraisDePort();
+			$TListfdp= $Tfdp->getAll($PDOdb,'WEIGHT');
+			$i=0;
+			foreach ( $TListfdp as $fdp)
+			{
+				$fdp->delete($PDOdb);
+			}
+		}
+		
+		if(!empty($_REQUEST['clearamount']))
+		{
+			$Tfdp = new TFraisDePort();
+			$TListfdp= $Tfdp->getAll($PDOdb,'AMOUNT');
+			foreach ( $TListfdp as $fdp)
+			{
+				$fdp->delete($PDOdb);
+			}
+		}
+		
 		$TData = unserialize($_REQUEST['data']);
 		$etape = 3;
 		
@@ -111,6 +134,10 @@ echo $form->fichier('Fichier à importer', 'f1', '', 50);
 echo $form->btsubmit('Prévisualiser', 'bt_preview');
 ?>
 <br /><small>(Colonnes : n° département,poids,palier,montant - séparateur : ';')</small>
+<br /><label ><input type="checkbox" name="clearamount" value="1" <?php echo !empty($_REQUEST['clearamount'])?'checked':'' ?> /> <?php $langs->trans("DelAmountBefortInport") ?> Supprimer les montants avant import</label>
+<br /><label ><input type="checkbox" name="clearweight" value="1" <?php echo !empty($_REQUEST['clearweight'])?'checked':'' ?> /> <?php $langs->trans("DelAmountWeightInport") ?> Supprimer les poids avant import</label>
+
+
 <?php
 
 if($etape>1) {
