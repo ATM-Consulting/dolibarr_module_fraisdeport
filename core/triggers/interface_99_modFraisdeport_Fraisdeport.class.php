@@ -123,6 +123,7 @@ class InterfaceFraisdeport
 			$langs->load('fraisdeport@fraisdeport');
 			
 			$object->fetch_optionals($object->id);
+			if(empty($object->client) && !empty($object->thirdparty))$object->client = &$object->thirdparty;
 			/*echo "<pre>";
 			print_r($object);
 			echo "</pre>";*/
@@ -144,11 +145,10 @@ class InterfaceFraisdeport
                 $fdp_used_montant = TFraisDePort::getFDP($PDOdb, 'AMOUNT', $object->total_ht);
 				
                 $fdp_used_weight = 0;
-                if($conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
+                if(!empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
                 	$total_weight = TFraisDePort::getTotalWeight($object);
-					$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->client->zip);
-					
-				}
+			$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->thirdparty->zip);
+		}
                
                 $fdp_used = max($fdp_used_weight, $fdp_used_montant );
              	

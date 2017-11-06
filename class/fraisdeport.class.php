@@ -27,7 +27,7 @@ class TFraisDePort extends TObjetStd {
 		else $sql.="ORDER BY palier DESC, zip DESC, fk_shipment_mode DESC, date_maj DESC";
 		
 		$Tab = $PDOdb->ExecuteAsArray($sql);
-		
+//		var_dump($Tab, $PDOdb);exit;
 		$last_palier = 0;
 		foreach($Tab as &$row) {
 			
