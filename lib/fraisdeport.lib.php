@@ -48,6 +48,14 @@ function fraisdeportAdminPrepareHead()
 	    $h++;
 		
 	}
+	
+	if(!empty($conf->global->FRAIS_DE_PORT_USE_TRANSPORT)) {
+	    $head[$h][0] = dol_buildpath("/fraisdeport/admin/import_tarifs.php", 1);
+	    $head[$h][1] = $langs->trans("ImportTarifTransport");
+	    $head[$h][2] = 'Transport';
+	    $h++;
+	    
+	}
 
     $head[$h][0] = dol_buildpath("/fraisdeport/admin/import.php", 1);
     $head[$h][1] = $langs->trans("Import");

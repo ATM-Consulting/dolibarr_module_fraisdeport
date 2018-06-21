@@ -126,12 +126,20 @@ print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="300">';
 print ajax_constantonoff('FRAIS_DE_PORT_USE_WEIGHT');
 print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("FRAIS_DE_PORT_USE_TRANSPORT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="300">';
+print ajax_constantonoff('FRAIS_DE_PORT_USE_TRANSPORT');
+print '</td></tr>';
 print '</table>';
 
 print '<script type="text/javascript">
 	$(function() {
 		/* do refresh to show or hide weight tab */
-		$("#set_FRAIS_DE_PORT_USE_WEIGHT, #del_FRAIS_DE_PORT_USE_WEIGHT").click(function() {
+		$("#set_FRAIS_DE_PORT_USE_WEIGHT, #del_FRAIS_DE_PORT_USE_WEIGHT, #set_FRAIS_DE_PORT_USE_TRANSPORT, #del_FRAIS_DE_PORT_USE_TRANSPORT").click(function() {
 			window.location.href=window.location.href;
 		});
 	});
