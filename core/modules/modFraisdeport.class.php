@@ -157,7 +157,18 @@ class modFraisdeport extends DolibarrModules
             $conf->mymodule=new stdClass();
             $conf->mymodule->enabled = 0;
         }
-        $this->dictionnaries = array();
+        $this->dictionnaries = array(
+            'langs'=>'fraisdeport@fraisdeport',
+            'tabname'=>array(MAIN_DB_PREFIX.'c_grilles_transporteurs'),
+            'tablib'=>array('Grilles tarifaire transporteur'),
+            'tabsql'=>array('SELECT f.rowid as rowid, f.transport, c.label as country, c.code as country_code, f.fk_pays as country_id, f.departement, f.poids, f.tarif FROM '.MAIN_DB_PREFIX.'c_grilles_transporteurs as f, '.MAIN_DB_PREFIX.'c_country as c WHERE f.fk_pays=c.rowid'),
+            'tabsqlsort'=>array("country ASC"),
+            'tabfield'=>array("transport,country,departement,poids,tarif"),
+            'tabfieldvalue'=>array("transport,country,departement,poids,tarif"),
+            'tabfieldinsert'=>array("transport,fk_pays,departement,poids,tarif"),
+            'tabrowid'=>array("rowid"),
+            'tabcond'=>array($conf->fraisdeport->enabled)
+        );
       
         // Boxes
         // Add here list of php file(s) stored in core/boxes that contains class to show a box.
@@ -374,6 +385,6 @@ class modFraisdeport extends DolibarrModules
      */
     private function loadTables()
     {
-        return $this->_load_tables('/mymodule/sql/');
+        return $this->_load_tables('/fraisdeport/sql/');
     }
 }
