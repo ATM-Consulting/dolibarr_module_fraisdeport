@@ -15,13 +15,14 @@ class ActionsFraisdeport
 		if (in_array('ordercard',explode(':',$parameters['context']))) 
         {
 			
-            
+            //var_dump($object);
             
 
 		}
 		
 		return 0;
 	}
+	
    function formObjectOptions($parameters, &$object, &$action, $hookmanager) {  
         global $conf, $langs,$db;
 		
@@ -62,5 +63,98 @@ class ActionsFraisdeport
 	    }
         
         return 0;
+    }
+    
+    function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
+    {
+        
+        
+        if (in_array('ordercard',explode(':',$parameters['context'])))
+        {
+            print '<a href="#" class="butAction" id="transport">Calcul des frais de transport</a>';
+            
+            $weight = $this->getCmdWeight($object);
+            $country = $object->thirdparty->country_id;
+            $dpt = $object->thirdparty->state_code;
+            
+            //print $weight;
+            ?>
+            
+            <script>
+				$(document).ready(function(){
+					console.log('Calcul transport ajouté');
+					var btn = $('#transport');
+
+ 					if($('#transportPrices').length==0) {
+						$('body').append('<div id="transportPrices" title="Liste des prix"></div>');
+					}
+
+					btn.click(function(e){
+						e.preventDefault();
+						// appel ajax récupération du tarif par transporteur
+						$.ajax({ // on check s'il existe un prix plus bas ailleurs
+                            url : "<?php echo dol_buildpath('/fraisdeport/script/interface.php',1) ?>"
+                            ,data:{
+                                put: 'checkprices'
+                                ,poids:<?php echo $weight ?>
+                                ,pays:<?php echo empty($country) ? 0 : $country ?>
+                                ,dpt:<?php echo empty($dpt) ? 0 : $dpt ?>
+                            }
+                            ,method:"post"
+                            ,dataType:'json'
+                        }).done(function(data) {//récupération du résultat et présentation dans une popin
+							console.log(data);
+							if(data.status == 500) {
+								$('#transportPrices').html('<div style="text-align:center">'+data.msg+'</div>');
+
+ 								$('#transportPrices').dialog({
+ 									modal:true,
+ 									width:'80%'
+ 								});
+							} else if (data.status == 200) {
+								console.log(data.liste);
+								$('#transportPrices').html('<div>'+data.liste+'</div>');
+
+ 								$('#transportPrices').dialog({
+ 									modal:true,
+ 									width:'80%'
+ 								});
+							}
+                        });
+						
+					});
+				});
+            </script>
+            
+            <?php
+        }
+        
+    }
+    
+    function getCmdWeight($object)
+    {
+        global $conf;
+        
+        $poidscmd = 0;
+        
+        if(!$conf->shippableorder->enabled)
+        {
+            define('INC_FROM_DOLIBARR',true);
+            dol_include_once('/fraisdeport/config.php');
+            dol_include_once('/fraisdeport/class/fraisdeport.class.php');
+            
+            $poidscmd = TFraisDePort::getTotalWeight($object);
+        }
+        else
+        {
+            //                 var_dump($object->lines, $object->shippableorder->TlinesShippable);
+            
+            foreach ($object->lines as $line)
+            {
+                if(!empty($object->shippableorder->TlinesShippable[$line->id]['qty_shippable'])) $poidscmd += $line->weight * $object->shippableorder->TlinesShippable[$line->id]['qty_shippable'];
+            }
+            
+        }
+        return $poidscmd;
     }
 }
