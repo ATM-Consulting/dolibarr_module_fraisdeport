@@ -87,7 +87,7 @@ function checkprice($weight, $country, $dpt)
         $ret .= '<tr class="liste_titre"><td>Transporteur</td><td>Cout de l\'envoi</td></tr>';
         foreach ($result as $name => $price)
         {
-            $p = $price * $weight;
+            $p = ($price < 0) ? $price * $weight : $price;
             $ret .= '<tr class="oddeven"><td>'.$name.'</td><td>'.$p.'</td></tr>';
         }
         $ret.='</table>';

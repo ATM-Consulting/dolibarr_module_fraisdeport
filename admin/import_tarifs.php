@@ -54,16 +54,35 @@ if($action === 'import') {
 		$etape = 2;
 		$TData=array();
 		$f1 = fopen($_FILES['f1']['tmp_name'],'r') or die('Fichier illisible'); 
+		$ext = substr($_FILES['f1']['name'], strrpos($_FILES['f1']['name'], '.')+1);
+		
+		//var_dump($_FILES['f1']);
+		if ($ext == "xls" || $ext == "xlsx")
+		{
+		    require_once PHPEXCEL_PATH.'/PHPExcel/IOFactory.php';
+		    $excel = PHPExcel_IOFactory::load($_FILES['f1']['tmp_name']);
+		    $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');
+		    $writer->setDelimiter(";");
+		    $writer->setEnclosure("");
+		    $writer->save("/tmp/converted.csv");
+		}
+		
+		if(is_file("/tmp/converted.csv")) $f1 = fopen("/tmp/converted.csv",'r');
+		
+		//var_dump($_FILES['f1'], is_file("/tmp/converted.csv")); exit;
+		//unlink("/tmp/converted.csv");
+		
 		$i = 0;
 		while($ligne = fgetcsv($f1,4096,';', '"') ) {
-		    if($i >1) 
+		    if($i > 0) 
 		    {
-		        $transport = $ligne[2];
-		        $pays = $ligne[3];
-		        $dept = $ligne[4];
+		        // var_dump($ligne); exit;
+		        $transport = $ligne[0];
+		        $pays = $ligne[1];
+		        $dept = $ligne[2];
 		        
 		        for($j = 0; $j < 20; $j++){
-		            $index = $j+7;
+		            $index = $j+3;
 		            $id = $transport.'-'.$pays.'-'.$dept.'-'.(int)$ligne[$index];
 		            //var_dump((int)$ligne[$index]); exit;
 		            if (empty($TData[$id])) {
@@ -73,6 +92,7 @@ if($action === 'import') {
 		    }
 			$i++;
 		}
+		if(is_file("/tmp/converted.csv")) unlink("/tmp/converted.csv");
  		//var_dump($TData); exit;
 	}	
 	else if($_REQUEST['bt_import'] && !empty($_REQUEST['data'])) {
@@ -141,8 +161,8 @@ print_titre('Etape 1');
 echo $form->fichier('Fichier à importer', 'f1', '', 50);
 echo $form->btsubmit('Prévisualiser', 'bt_preview');
 ?>
-<!-- <br /><small>(Colonnes : n° département,poids,palier,montant - séparateur : ';')</small> 
-<br /><label ><input type="checkbox" name="clearamount" value="1" <?php echo !empty($_REQUEST['clearamount'])?'checked':'' ?> /> <?php $langs->trans("DelAmountBefortInport") ?> Supprimer les montants avant import</label>
+<br /><small>(Colonnes : nom transporteur, pays, n° département, "D" à "W" : poids, "X" à "AQ" : montants correspondant - séparateur : ';')</small> 
+<!--<br /><label ><input type="checkbox" name="clearamount" value="1" <?php echo !empty($_REQUEST['clearamount'])?'checked':'' ?> /> <?php $langs->trans("DelAmountBefortInport") ?> Supprimer les montants avant import</label>
 <br /><label ><input type="checkbox" name="clearweight" value="1" <?php echo !empty($_REQUEST['clearweight'])?'checked':'' ?> /> <?php $langs->trans("DelAmountWeightInport") ?> Supprimer les poids avant import</label>
 -->
 
