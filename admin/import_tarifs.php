@@ -71,13 +71,38 @@ if($action === 'import') {
 		
 		//var_dump($_FILES['f1'], is_file("/tmp/converted.csv")); exit;
 		//unlink("/tmp/converted.csv");
-		
+		$TTransporteur = array();
 		$i = 0;
 		while($ligne = fgetcsv($f1,4096,';', '"') ) {
 		    if($i > 0) 
 		    {
 		        // var_dump($ligne); exit;
 		        $transport = $ligne[0];
+		        
+		        // créer le transporteur
+		        if(!in_array($transporteur, array_keys($TTransporteur)))
+		        {
+		            $sql = "SELECT rowid, active FROM ".MAIN_DB_PREFIX."c_shipment_mode WHERE code = '".$transport."'";
+		            $res = $db->query($sql);
+		            if ($res)
+		            {
+		                if($db->num_rows($res)) {
+		                    $obj = $db->fetch_object($res);
+		                    $TTransporteur[$transport] = $obj->rowid;
+		                    if(empty((int)$obj->active)) 
+		                    {
+		                        $sql2 = "UPDATE ".MAIN_DB_PREFIX."c_shipment_mode SET active=1 WHERE rowid=".$obj->rowid;
+		                        $res2 = $db->query($sql2);
+		                    }
+		                } else {
+		                    $sql2 = "INSERT INTO ".MAIN_DB_PREFIX."c_shipment_mode (code, libelle, description, tracking, active) VALUES ('$transport', '$transport', '$transport', '', 1)";
+		                    $res2 = $db->query($sql2);
+		                    if ($res2) $TTransporteur[$transport] = $db->last_insert_id(MAIN_DB_PREFIX."c_shipment_mode");
+// 		                    else var_dump($db->lasterror);
+		                }
+		            }
+		        }
+		        
 		        $pays = $ligne[1];
 		        $dept = $ligne[2];
 		        
@@ -102,6 +127,7 @@ if($action === 'import') {
 		$resql = $db->query($sql);
 				
 		$TData = unserialize($_REQUEST['data']);
+		$TTransporteur = unserialize($_REQUEST['transport']);
 		$etape = 3;
 		
 		$TCountry = array();
@@ -115,7 +141,7 @@ if($action === 'import') {
 			
 			$data['ok'] = 1;
 			if ($data[1] == 'PB') $data[1] = "NL";
-			$sql = "INSERT INTO ".MAIN_DB_PREFIX."c_grilles_transporteurs (rowid, transport, fk_pays, departement, poids, tarif, active) VALUES (NULL, '".$data[0]."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[3]."', '".$data[4]."', '1');";
+			$sql = "INSERT INTO ".MAIN_DB_PREFIX."c_grilles_transporteurs (rowid, fk_trans, fk_pays, departement, poids, tarif, active) VALUES (NULL, '".$TTransporteur[$data[0]]."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[3]."', '".$data[4]."', '1');";
             $resql = $db->query($sql);
             if(! $resql) {
                 print $k.' : '.$db->lasterror.'<br>';
@@ -172,7 +198,7 @@ if($etape>1) {
 	print_titre('Etape 2');
 	
 	echo $form->zonetexte('', 'data', serialize($TData), 80,5, ' style="display:none;" ');
-	
+	echo $form->zonetexte('', 'transport', serialize($TTransporteur), 80,5, ' style="display:none;" ');
 	?>
 	<table class="liste">
 		<tr class="liste_titre">

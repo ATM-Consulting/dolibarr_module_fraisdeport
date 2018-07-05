@@ -55,6 +55,10 @@ function fraisdeportAdminPrepareHead()
 	    $head[$h][2] = 'Transport';
 	    $h++;
 	    
+	    $head[$h][0] = dol_buildpath("/fraisdeport/admin/grilles.php", 1);
+	    $head[$h][1] = $langs->trans("Grilles");
+	    $head[$h][2] = 'GrillesTransport';
+	    $h++;
 	}
 
     $head[$h][0] = dol_buildpath("/fraisdeport/admin/import.php", 1);
