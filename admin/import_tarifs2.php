@@ -72,7 +72,13 @@ if($action === 'import') {
 		//var_dump($_FILES['f1'], is_file("/tmp/converted.csv")); exit;
 		//unlink("/tmp/converted.csv");
 		$TTransporteur = array();
+		$TTranches = array();
 		$i = 0;
+		
+		// vide les paliers
+		$sql = 'DELETE FROM '.MAIN_DB_PREFIX.'c_paliers_transporteurs';
+		$resql = $db->query($sql);
+		
 		while($ligne = fgetcsv($f1,4096,';', '"') ) {
 		    if($i > 0) 
 		    {
@@ -116,11 +122,29 @@ if($action === 'import') {
 		        
 		        for($j = 0; $j < 20; $j++){
 		            $index = $j+3;
+		            
+		            // créer les paliers
+		            $palier = $transport.'-'.(int)$ligne[$index];
+		            if(!in_array($palier, array_keys($TTranches)))
+		            {
+		                $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE fk_trans = ".$TTransporteur[$transport]." AND poids = " . (int)$ligne[$index];
+		                $res = $db->query($sql);
+		                if ($res)
+		                {
+		                    if(!$db->num_rows($res))
+		                    {
+		                        $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_paliers_transporteurs (fk_trans, poids, active) VALUES (".$TTransporteur[$transport].", '".((int)$ligne[$index])."', 1)";
+		                        $ret = $db->query($sql);
+		                    }
+		                }
+		            }
+		            
 		            $id = $transport.'-'.$pays.'-'.$dept.'-'.(($localite !== "0") ? $localite.'-' : '').(int)$ligne[$index];
 		            //var_dump((int)$ligne[$index]); exit;
 		            if (empty($TData[$id])) {
 		                $TData[$id] = array($transport, $pays, $dept, (int)$ligne[$index], (float)$ligne[$index+20], $localite);
 		            }
+		            
 		        }
 		    }
 			$i++;
@@ -128,11 +152,12 @@ if($action === 'import') {
 		}
 		if(is_file("/tmp/converted.csv")) unlink("/tmp/converted.csv");
  		//var_dump($TData); exit;
+		
 	}	
 	else if($_REQUEST['bt_import'] && !empty($_REQUEST['data'])) {
 		
 		// vider le dictionnaire des tarifs
-		$sql = 'DELETE FROM '.MAIN_DB_PREFIX.'c_grilles_transporteurs';
+		$sql = 'DELETE FROM '.MAIN_DB_PREFIX.'c_tarifs_transporteurs';
 		$resql = $db->query($sql);
 				
 		$TData = unserialize($_REQUEST['data']);
@@ -146,11 +171,21 @@ if($action === 'import') {
 		    while ($obj = $db->fetch_object($resql)) $TCountry[$obj->code] = $obj->rowid;
 		}
 		
+		$TPaliers = array();
+		$sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE active = 1";
+		$res = $db->query($sql);
+		if ($res){
+		    while ($obj = $db->fetch_object($res)) $TPaliers[$obj->fk_trans.'-'.$obj->poids] = $obj->rowid;
+		}
+		
 		foreach($TData as $k => &$data) {
-			
+		    
+		    if ($TTransporteur[$data[0]] !== '23') break;
 			$data['ok'] = 1;
 			if ($data[1] == 'PB') $data[1] = "NL";
-			$sql = "INSERT INTO ".MAIN_DB_PREFIX."c_grilles_transporteurs (rowid, fk_trans, fk_pays, departement, zipcode, poids, tarif, active) VALUES (NULL, '".$TTransporteur[$data[0]]."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[5]."', '".$data[3]."', '".$data[4]."', '1');";
+			$fk_palier = $TPaliers[$TTransporteur[$data[0]].'-'.$data[3]];
+			
+			$sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (rowid, fk_palier, fk_pays, departement, zipcode, tarif, active) VALUES (NULL, '".$fk_palier."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[5]."', '".$data[4]."', '1');";
             $resql = $db->query($sql);
             if(! $resql) {
                 print $k.' : '.$db->lasterror.'<br>';
