@@ -111,6 +111,7 @@ if($action === 'import') {
 		        
 		        $pays = $ligne[1];
 		        $dept = $ligne[2];
+		        $timbre = (float) trim($ligne[43]);
 		        $loc = $ligne[44];
 		        
 		        $localite = '';
@@ -120,6 +121,18 @@ if($action === 'import') {
 		            else $localite = $dept."000";
 		        }
 		        
+		        $id = $transport.'-'.$pays.'-'.$dept.'-'.(($localite !== "0") ? $localite.'-' : '').'0';
+		        if (!empty($timbre)) $TData[$id] = array($transport, $pays, $dept, 0, $timbre, $localite);
+		        $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE fk_trans = ".$TTransporteur[$transport]." AND poids = 0";
+		        $res = $db->query($sql);
+		        if ($res)
+		        {
+		            if(!$db->num_rows($res))
+		            {
+		                $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_paliers_transporteurs (fk_trans, poids, active) VALUES (".$TTransporteur[$transport].", 0, 1)";
+		                $ret = $db->query($sql);
+		            }
+		        }
 		        for($j = 0; $j < 20; $j++){
 		            $index = $j+3;
 		            
@@ -138,6 +151,7 @@ if($action === 'import') {
 		                    }
 		                }
 		            }
+		            
 		            
 		            $id = $transport.'-'.$pays.'-'.$dept.'-'.(($localite !== "0") ? $localite.'-' : '').(int)$ligne[$index];
 		            //var_dump((int)$ligne[$index]); exit;
@@ -188,7 +202,8 @@ if($action === 'import') {
 			$sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (rowid, fk_palier, fk_pays, departement, zipcode, tarif, active) VALUES (NULL, '".$fk_palier."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[5]."', '".$data[4]."', '1');";
             $resql = $db->query($sql);
             if(! $resql) {
-                print $k.' : '.$db->lasterror.'<br>';
+                var_dump($fk_palier, $data[0].'-'.$data[3]); 
+                print $k.' : '.$db->lasterror.'<br>';exit;
             }
 // 			$o = new TFraisDePort;
 // 			$o->zip = str_pad($data[0],2,'0',STR_PAD_LEFT);
@@ -231,7 +246,7 @@ print_titre('Etape 1');
 echo $form->fichier('Fichier à importer', 'f1', '', 50);
 echo $form->btsubmit('Prévisualiser', 'bt_preview');
 ?>
-<br /><small>(Colonnes : nom transporteur, pays, n° département, "D" à "W" : poids, "X" à "AQ" : montants correspondant - séparateur : ';')</small> 
+<br /><small>(Colonnes : nom transporteur, pays, n° département, "D" à "W" : poids, "X" à "AQ" : montants correspondant, "AR" : tarif timbre, "AR": localité - séparateur : ';')</small> 
 <!--<br /><label ><input type="checkbox" name="clearamount" value="1" <?php echo !empty($_REQUEST['clearamount'])?'checked':'' ?> /> <?php $langs->trans("DelAmountBefortInport") ?> Supprimer les montants avant import</label>
 <br /><label ><input type="checkbox" name="clearweight" value="1" <?php echo !empty($_REQUEST['clearweight'])?'checked':'' ?> /> <?php $langs->trans("DelAmountWeightInport") ?> Supprimer les poids avant import</label>
 -->

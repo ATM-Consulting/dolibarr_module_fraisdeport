@@ -15,7 +15,7 @@ class ActionsFraisdeport
 		if (in_array('ordercard',explode(':',$parameters['context']))) 
         {
 			
-            //var_dump($object);
+//             var_dump($ret, $c, $object);
             
 
 		}
@@ -67,15 +67,25 @@ class ActionsFraisdeport
     
     function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
     {
+        global $db;
         
-        
-        if (in_array('ordercard',explode(':',$parameters['context'])))
+        if (in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context'])))
         {
             print '<a href="#" class="butAction" id="transport">Calcul des frais de transport</a>';
             
             $weight = $this->getCmdWeight($object);
+            
             $country = $object->thirdparty->country_id;
             $dpt = $object->thirdparty->state_code;
+//             var_dump($dpt);
+            $ret  = $object->liste_contact(-1, 'external', 1, 'SHIPPING');
+            if($ret > 0) {
+                $contact = new Contact($db);
+                $r = $contact->fetch($ret[0]);
+                $country = $contact->country_id;
+                $dpt = $contact->state_code;
+            }
+//             var_dump($dpt);
             
             //print $weight;
             ?>

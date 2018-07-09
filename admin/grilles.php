@@ -52,7 +52,7 @@ if ($resql){
 }
 
 $TTransport = array();
-$sql = "SELECT rowid, libelle FROM ".MAIN_DB_PREFIX."c_shipment_mode WHERE active = 1";
+$sql = "SELECT rowid, libelle FROM ".MAIN_DB_PREFIX."c_shipment_mode WHERE active = 1 and rowid > 3";
 $res = $db->query($sql);
 if($res)
 {
@@ -63,125 +63,190 @@ if(count($TTransport))
 {
     foreach ($TTransport as $tid => $label)
     {
-        $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_grilles_transporteurs WHERE fk_trans = ".$tid;
+        // récupérer toutes les tranches de poids du transporteur
+        $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE fk_trans = ".$tid." ORDER BY poids ASC";
+//         var_dump($sql);
         $res = $db->query($sql);
         if($res)
         {
-            if($db->num_rows($res)) { 
-                
-                print_titre($label);
-                $TData = array();
-                
-//                 while ($obj = $db->fetch_object($res))
-//                 {
-//                     $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
-//                 }
-                
-                 
-                	$pays = 0;
-                	while ($obj = $db->fetch_object($res))
-                	{
-                	    $pays = $obj->fk_pays;
-                	    $dpt = $obj->departement;
-                	    $zip = $obj->zipcode;
-                	    $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
-                	}
-                	$entete = false;
-                	foreach ($TData as $pays => $depts)
-                	{ 
-                	    foreach ($depts as $dpt => $zip)
-                    	{ 
-                    	   foreach ($zip as $code => $prices)
-                    	   {
-                    	       if(!$entete)
-                    	       {
-                    	           ?>
-                <table class="noborder" width="100%">
-                	<tr class="liste_titre">
-                		<td align="left">Pays</td>
-                		<td align="center">Département</td>
-                		<td align="center">Code postal</td>
-                		<td align="center">Timbre</td>
-                		<?php 
-                		$oldpds = 0;
-                    	foreach ($prices as $pds => $prix){
-                    	    ?>
-                    	    <td align="center"><?php echo 'de '. $oldpds . ' à '; ?><input type="text" name="newPalier[[view.contrat]]" value="<?php echo $pds ?>" size="5" />kg</td>
-                    	<?php 
-                    	   $oldpds = $pds;
-                    	}?>
-                <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-                		<td><input type="text" name="newPalier[[view.contrat]]" value="" size="5" />&nbsp;kg</td>
-                	</tr>
-                	
-                	<?php
-                    	           $entete = true;
-                    	       }
-                    	    ?>
-                	    <tr class="oddeven">
-                	    
-                    	    <td align="left"><?php echo $TCountry[$pays] ?></td>
-                    	    <td align="center"><?php echo $dpt; ?></td>
-                    	    <td align="center"><?php echo (!empty($code)) ? $code : ""; ?></td>
-                    	    <td align="center">Timbre</td>
-                    	    <?php 
-                    	    foreach ($prices as $pds => $prix){
-                    	    ?>
-                    	    <td align="center"><input type="text" name="newPalier[[view.contrat]]" value="<?php echo $prix ?>" size="5" />&nbsp;€</td>
-                    	    <?php }?>
-                    	    <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-                    	    <td>&nbsp;</td>
-                	    
-                	    </tr>
-                	    <?php 
-                    	   }
-                    	}
-                	}
-                	?>
-                	
-                </table>
-                <?php
+            $TTranches = array();
+            while($obj = $db->fetch_object($res))
+            {
+                $TTranches[$obj->rowid] = $obj->poids;
             }
         }
+        // pour chaque tranche récupérer les tarifs correspondants par pays/dpt/ville
+        $TTarifs = array();
         
-    }
+        $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier IN ('".implode("','", array_keys($TTranches))."') ORDER BY fk_pays, departement, zipcode ASC";
+//         var_dump($sql);
+        $res = $db->query($sql);
+        if($res)
+        {
+            while($obj = $db->fetch_object($res)){
+                //             $TTarifs[$obj->fk_palier]['pays'] = $obj->fk_pays;
+                //             $TTarifs[$obj->fk_palier]['dpt'] = $obj->departement;
+                //             $TTarifs[$obj->fk_palier]['zip'] = $obj->zipcode;
+                //             $TTarifs[$obj->fk_palier]['tarif'] = $obj->tarif;
+                $TTarifs[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->fk_palier] = $obj->tarif;
+            }
+
+        }
+//         var_dump($TTarifs); exit;
+
+        if(count($TTranches))
+        {
+            print_titre($label);
+            ?>
+            
+            <table class="noborder" width="100%">
+                <!-- entête -->
+                <tr class="liste_titre">
+            	<td align="left">Pays</td>
+                <td align="center">Département</td>
+            	<td align="center">Code postal</td>
+            <?php
+                $i = 0;
+                $num = count($TTranches);
+                foreach ($TTranches as $pds){
+                    
+                    if(empty($pds)) {
+                        print '<td align="center">Timbre</td>';
+                        print '<td align="center">';
+                        $first = true;
+                    }
+                    else {
+                            
+                            if($first) {
+                                print 'de '. $pds . ' à ';
+                                $first = false;
+                            } elseif ($i < ($num -1) ) {
+                                print $pds . 'kg</td>';
+                                print '<td align="center">de '. $pds . ' à ';
+                            } elseif ($i == $num -1 ) {
+                                print $pds . 'kg</td>';
+                                print '<td align="center">plus de '. $pds . ' kg</td>';
+                            }
+                            
+                    }
+                    
+                    $i++;
+                
+                }
+                
+            	print '</tr>';
+            	foreach ($TTarifs as $pays => $depts)
+            	{
+            	    foreach ($depts as $dpt => $zip)
+                	{
+                	   foreach ($zip as $code => $prices)
+                	   {
+                	       print '<tr>';
+                	       //var_dump($prices);
+                	       print '<td align="left">'.$TCountry[$pays].'</td>';
+                	       print '<td align="center">'.$dpt.'</td>';
+                	       print '<td align="center">'.((!empty($code)) ? $code : "").'</td>';
+                	       
+                	       foreach ($prices as $id => $prix){
+                	           print '<td align="center">'.$prix.' €</td>';
+                	       }
+                	       
+                	       print '</tr>';
+                	   }
+                	}
+            	}
+            	
+            print '</table>';
+  
+        }
+        
+//         $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_grilles_transporteurs WHERE fk_trans = ".$tid;
+//         $res = $db->query($sql);
+//         if($res)
+//         {
+//             if($db->num_rows($res)) { 
+                
+//                 print_titre($label);
+//                 $TData = array();
+                
+// //                 while ($obj = $db->fetch_object($res))
+// //                 {
+// //                     $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
+// //                 }
+                
+                 
+//                 	$pays = 0;
+//                 	while ($obj = $db->fetch_object($res))
+//                 	{
+//                 	    $pays = $obj->fk_pays;
+//                 	    $dpt = $obj->departement;
+//                 	    $zip = $obj->zipcode;
+//                 	    $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
+//                 	}
+//                 	$entete = false;
+//                 	foreach ($TData as $pays => $depts)
+//                 	{ 
+//                 	    foreach ($depts as $dpt => $zip)
+//                     	{ 
+//                     	   foreach ($zip as $code => $prices)
+//                     	   {
+//                     	       if(!$entete)
+//                     	       {
+//                     	           ?>
+<!--                 <table class="noborder" width="100%"> -->
+<!--                 	<tr class="liste_titre"> -->
+<!--                 		<td align="left">Pays</td> -->
+<!--                 		<td align="center">Département</td> -->
+<!--                 		<td align="center">Code postal</td> -->
+<!--                 		<td align="center">Timbre</td> -->
+                		<?php 
+//                 		$oldpds = 0;
+//                     	foreach ($prices as $pds => $prix){
+//                     	    ?>
+                    	    <!-- <td align="center"><?php //echo 'de '. $oldpds . ' à '; ?><input type="text" name="newPalier[[view.contrat]]" value="<?php //echo $pds ?>" size="5" />kg</td> -->
+                    	<?php 
+//                     	   $oldpds = $pds;
+//                     	}?>
+                <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
+<!--                 		<td><input type="text" name="newPalier[[view.contrat]]" value="" size="5" />&nbsp;kg</td> -->
+<!--                 	</tr> -->
+                	
+                	<?php
+//                     	           $entete = true;
+//                     	       }
+//                     	    ?>
+<!--                 	    <tr class="oddeven"> -->
+                	    
+                    	    <td align="left"><?php //echo $TCountry[$pays] ?></td>
+                    	    <td align="center"><?php //echo $dpt; ?></td>
+                    	    <td align="center"><?php //echo (!empty($code)) ? $code : ""; ?></td>
+<!--                     	    <td align="center">Timbre</td> -->
+                    	    <?php 
+//                     	    foreach ($prices as $pds => $prix){
+//                     	    ?>
+                    	    <!--<td align="center"><input type="text" name="newPalier[[view.contrat]]" value="<?php //echo $prix ?>" size="5" />&nbsp;€</td>-->
+                    	    <?php }?>
+                    	    <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
+<!--                     	    <td>&nbsp;</td> -->
+                	    
+<!--                 	    </tr> -->
+                	    <?php 
+//                     	   }
+//                     	}
+//                 	}
+//                 	?>
+                	
+<!--                 </table> -->
+                <?php
+//             }
+//         }
+        
+    //}
 }
 
-print_titre("methode");
 
 ?>
 
-<table class="noborder" width="100%">
-	<tr class="liste_titre">
-		<td align="left">Pays</td>
-		<td align="center">Département</td>
-		<td align="center">Code postal</td>
-		<td align="center">Timbre</td>
-<!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-		<td><input type="text" name="newPalier[[view.contrat]]" value="" size="10" /> kg</td>
-	</tr>
-	<tr class="oddeven">
-		<td align="left">
-			<input type="text" class="flat" name="TPeriode[[view.contrat]][[coefficient.#]]" size="3" value="[coefficient.$; block=tr;strconv=no;sub1]" />
-			
-		</td>
-		<td align="center">
-			<input type="hidden" name="TCoeff[[view.contrat]][[coefficient.#]][[coefficient_sub1.#]][rowid]" value="[coefficient_sub1.rowid; block=td]" />
-			<input type="text" class="flat" name="TCoeff[[view.contrat]][[coefficient.#]][[coefficient_sub1.#]][coeff]" size="5" value="[coefficient_sub1.coeff;]" />
-		</td>
-		
-		<td>
-			<input type="text" class="flat" name="TCoeff[[view.contrat]][[coefficient.#]][[coefficient_sub1.#]][coeff]" size="5" value="" />
-		</td>
-		<!--<td><input type="text" name="TNewCoeff[[coefficient.$]]" size="5" value="" /> %[onshow;block=td;when [view.mode]=='edit']</td> -->
-	</tr>
-	<tr class="oddeven"><td></td><td colspan="2"></td></tr>
-	<tr class="oddeven">
-		<td><?php print $form->select_country('', 'country_id') ?></td>
-		<td colspan='2' align="left"> <input type="text" class="flat" name="newPeriode[[view.contrat]]" size="3" value="" /></td>
-	</tr>
-	
-</table>
 
 <div class="tabsAction">
 <input type="submit" name="save" value="Enregistrer" class="button" />
