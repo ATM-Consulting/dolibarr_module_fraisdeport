@@ -255,11 +255,10 @@ if(count($TTransport))
 
 ?>
 
-
-<div class="tabsAction">
-<input type="submit" name="save" value="Enregistrer" class="button" />
-</div>
+<!--<div class="tabsAction">-->
+<!--<input type="submit" name="save" value="Enregistrer" class="button" />-->
+<!--</div>-->
 
 <?php 
-print $form->selectarray('transports', $TTransport, '', 1);
+//print $form->selectarray('transports', $TTransport, '', 1);
 ?>

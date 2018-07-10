@@ -86,7 +86,7 @@ class ActionsFraisdeport
                 $dpt = $contact->state_code;
             }
             
-            //print $weight;
+            if(GETPOST('greg')) var_dump($weight);
             ?>
             
             <script>
@@ -145,15 +145,15 @@ class ActionsFraisdeport
         global $conf;
         
         $poidscmd = 0;
-        
+        /*
         if(!$conf->shippableorder->enabled)
-        {
+        {*/
             define('INC_FROM_DOLIBARR',true);
             dol_include_once('/fraisdeport/config.php');
             dol_include_once('/fraisdeport/class/fraisdeport.class.php');
             
             $poidscmd = TFraisDePort::getTotalWeight($object);
-        }
+        /*}
         else
         {
             //                 var_dump($object->lines, $object->shippableorder->TlinesShippable);
@@ -163,7 +163,7 @@ class ActionsFraisdeport
                 if(!empty($object->shippableorder->TlinesShippable[$line->id]['qty_shippable'])) $poidscmd += $line->weight * $object->shippableorder->TlinesShippable[$line->id]['qty_shippable'];
             }
             
-        }
+        }*/
         return $poidscmd;
     }
 }
