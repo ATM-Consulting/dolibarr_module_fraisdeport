@@ -246,7 +246,7 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     echo $form->fichier('Fichier à importer', 'f1', '', 50);
     echo $form->btsubmit('Prévisualiser', 'bt_preview');
     ?>
-<br /><small>(Colonnes : nom transporteur, pays, n° département, "D" à "W" : poids, "X" à "AQ" : montants correspondant, "AR" : tarif timbre, "AR": localité - séparateur : ';')</small> 
+<br /><small>(Colonnes : nom transporteur, pays, n° département, "D" à "W" : poids, "X" à "AQ" : montants correspondant, "AR" : tarif timbre, "AS": localité - séparateur : ';')</small> 
 <!--<br /><label ><input type="checkbox" name="clearamount" value="1" <?php echo !empty($_REQUEST['clearamount'])?'checked':'' ?> /> <?php $langs->trans("DelAmountBefortInport") ?> Supprimer les montants avant import</label>
 <br /><label ><input type="checkbox" name="clearweight" value="1" <?php echo !empty($_REQUEST['clearweight'])?'checked':'' ?> /> <?php $langs->trans("DelAmountWeightInport") ?> Supprimer les poids avant import</label>
 -->

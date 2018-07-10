@@ -79,13 +79,12 @@ class ActionsFraisdeport
             $dpt = $object->thirdparty->state_code;
 //             var_dump($dpt);
             $ret  = $object->liste_contact(-1, 'external', 1, 'SHIPPING');
-            if($ret > 0) {
+            if($ret > 0 && !empty($ret)) {
                 $contact = new Contact($db);
                 $r = $contact->fetch($ret[0]);
                 $country = $contact->country_id;
                 $dpt = $contact->state_code;
             }
-//             var_dump($dpt);
             
             //print $weight;
             ?>

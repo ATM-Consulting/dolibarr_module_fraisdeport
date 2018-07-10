@@ -42,12 +42,12 @@ function checkprice($weight, $country, $dpt)
     }
     elseif (empty($country)) 
     {
-        print json_encode(array('status'=>500, 'msg' => "le pays de destination n'est pas renseigner"));
+        print json_encode(array('status'=>500, 'msg' => "le pays de destination n'est pas renseigné"));
         exit;
     }
     elseif ($country == 1 && empty($dpt)) 
     {
-        print json_encode(array('status'=>500, 'msg' => "le département de destination n'est pas renseigner"));
+        print json_encode(array('status'=>500, 'msg' => "le département de destination n'est pas renseigné"));
         exit;
     }
     
@@ -97,5 +97,6 @@ function checkprice($weight, $country, $dpt)
         $ret.='</table>';
     }
     
-    print json_encode(array('status'=>200, 'msg' => "récupération réussi", 'liste' => $ret));
+    if (empty($ret)) print json_encode(array('status'=>500, 'msg' => "Aucun tarif trouvé pour les paramètres de cete commande", 'liste' => $ret));
+    else print json_encode(array('status'=>200, 'msg' => "récupération réussi", 'liste' => $ret));
 }
