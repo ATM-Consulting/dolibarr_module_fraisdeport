@@ -64,22 +64,26 @@ if(count($TTransport))
     foreach ($TTransport as $tid => $label)
     {
         // récupérer toutes les tranches de poids du transporteur
-        $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE fk_trans = ".$tid." ORDER BY poids ASC";
-//         var_dump($sql);
+        $sql = "SELECT DISTINCT p.rowid, t.fk_pays, p.poids FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs as p";
+        $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t ON t.fk_palier = p.rowid";
+        $sql.= " WHERE p.fk_trans = ".$tid." ORDER BY t.fk_pays, p.poids ASC";
+//          var_dump($sql);
         $res = $db->query($sql);
         if($res)
         {
             $TTranches = array();
             while($obj = $db->fetch_object($res))
             {
-                $TTranches[$obj->rowid] = $obj->poids;
+                $TTranches['poids'][$obj->rowid] = $obj->poids;
+                $TTranches['pays'][$obj->fk_pays][] = $obj->rowid;
             }
+//             var_dump($TTranches); exit;
         }
         // pour chaque tranche récupérer les tarifs correspondants par pays/dpt/ville
         $TTarifs = array();
         
-        $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier IN ('".implode("','", array_keys($TTranches))."') ORDER BY fk_pays, departement, zipcode ASC";
-//         var_dump($sql);
+        $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier IN ('".implode("','", array_keys($TTranches['poids']))."') ORDER BY fk_pays, departement, zipcode ASC";
+//          var_dump($sql);
         $res = $db->query($sql);
         if($res)
         {
@@ -96,7 +100,10 @@ if(count($TTransport))
 
         if(count($TTranches))
         {
-            print_titre($label);
+            
+            foreach ($TTranches['pays'] as $k => $country)
+            {
+                print_titre($label.' - '.$TCountry[$k]);
             ?>
             
             <table class="noborder" width="100%">
@@ -107,43 +114,44 @@ if(count($TTransport))
             	<td align="center">Code postal</td>
             <?php
                 $i = 0;
-                $num = count($TTranches);
-                foreach ($TTranches as $pds){
+                $num = count($country);
+                foreach ($country as $seuil){
                     
-                    if(empty($pds)) {
+                    if((int)empty($TTranches['poids'][$seuil])) {
                         print '<td align="center">Timbre</td>';
                         print '<td align="center">';
                         $first = true;
                     }
                     else {
-                            
-                            if($first) {
-                                print 'de '. $pds . ' à ';
-                                $first = false;
-                            } elseif ($i < ($num -1) ) {
-                                print $pds . 'kg</td>';
-                                print '<td align="center">de '. $pds . ' à ';
-                            } elseif ($i == $num -1 ) {
-                                print $pds . 'kg</td>';
-                                print '<td align="center">plus de '. $pds . ' kg</td>';
-                            }
-                            
+                        
+                        if($first) {
+                            print 'de '. $TTranches['poids'][$seuil] . ' à ';
+                            $first = false;
+                        } elseif ($i < ($num -1) ) {
+                            print $TTranches['poids'][$seuil] . 'kg</td>';
+                            print '<td align="center">de '. $TTranches['poids'][$seuil] . ' à ';
+                        } elseif ($i == $num -1 ) {
+                            print $TTranches['poids'][$seuil] . 'kg</td>';
+                            print '<td align="center">plus de '. $TTranches['poids'][$seuil] . ' kg</td>';
+                        }
+                        
                     }
                     
                     $i++;
-                
                 }
+                print '</tr>';
                 
-            	print '</tr>';
-            	foreach ($TTarifs as $pays => $depts)
-            	{
-            	    foreach ($depts as $dpt => $zip)
+//                 var_dump($k, $TTarifs[$k]);
+//             	exit;
+//             	foreach ($TTarifs as $pays => $depts)
+//             	{
+            	    foreach ($TTarifs[$k] as $dpt => $zip)
                 	{
                 	   foreach ($zip as $code => $prices)
                 	   {
                 	       print '<tr>';
                 	       //var_dump($prices);
-                	       print '<td align="left">'.$TCountry[$pays].'</td>';
+                	       print '<td align="left">'.$TCountry[$k].'</td>';
                 	       print '<td align="center">'.$dpt.'</td>';
                 	       print '<td align="center">'.((!empty($code)) ? $code : "").'</td>';
                 	       
@@ -154,10 +162,10 @@ if(count($TTransport))
                 	       print '</tr>';
                 	   }
                 	}
-            	}
+//             	}
             	
             print '</table>';
-  
+            }
         }
         
 //         $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_grilles_transporteurs WHERE fk_trans = ".$tid;
