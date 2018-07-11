@@ -26,12 +26,17 @@ if (! $user->admin) {
 $action = GETPOST('action', 'alpha');
 $newPalier = GETPOST('newPalier', 'array');
 $paliers = GETPOST('paliers', 'array');
+$fk_trans = GETPOST('transport', 'int');
+$fk_pays = GETPOST('pays', 'int');
+$toUpdate = GETPOST('pricesToUpdate', 'array');
+$prices = GETPOST('prices', 'array');
 
 /**
  * Actions
  */
-if ($action == "updatepalier")
+if ($action == "update")
 {
+    var_dump($_POST);
     foreach ($newPalier as $id => $palier)
     {
         if (!empty($palier)){
@@ -85,7 +90,6 @@ if ($action == "updatepalier")
     
     if(!empty($paliers))
     {
-        $fk_trans = GETPOST('transport', 'int');
         $sql = "SELECT rowid, poids FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE rowid IN ('".implode("','", array_keys($paliers[$fk_trans]))."')";
         $res = $db->query($sql);
         $toUpdate = array();
@@ -106,6 +110,14 @@ if ($action == "updatepalier")
                 $sql.= " WHERE rowid=".$palid;
                 $res = $db->query($sql);
             }
+        }
+    }
+    
+    if(!empty($toUpdate))
+    {
+        foreach ($toUpdate as $id => $dummy)
+        {
+            
         }
     }
     
@@ -167,6 +179,12 @@ if($res)
     while($obj = $db->fetch_object($res)) $TTransport[$obj->rowid] = $obj->libelle;
 }
 
+print "<script>
+        $(document).on('change', '.prixpalier', function(e){
+            $(this).prev().attr('checked', true);
+        });
+       </script>";
+
 if(count($TTransport))
 {
     foreach ($TTransport as $tid => $label)
@@ -196,11 +214,8 @@ if(count($TTransport))
         if($res)
         {
             while($obj = $db->fetch_object($res)){
-                //             $TTarifs[$obj->fk_palier]['pays'] = $obj->fk_pays;
-                //             $TTarifs[$obj->fk_palier]['dpt'] = $obj->departement;
-                //             $TTarifs[$obj->fk_palier]['zip'] = $obj->zipcode;
-                //             $TTarifs[$obj->fk_palier]['tarif'] = $obj->tarif;
                 $TTarifs[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->fk_palier] = $obj->tarif;
+                $TTarifsId[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->fk_palier] = $obj->rowid;
             }
 
         }
@@ -213,15 +228,17 @@ if(count($TTransport))
             {
                 print_titre($label.' - '.$TCountry[$k]);
 //                 var_dump($TTranches['pays'][$k], $TTranches['poids']);//exit;
+                print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+                print '<input type="hidden" name="action" value="update">';
+                print '<input type="hidden" name="transport" value="'.$tid.'">';
+                print '<input type="hidden" name="pays" value="'.$k.'">';
             ?>
             
             <table class="noborder" width="100%">
                 <!-- entête -->
                 <tr class="liste_titre">
                 <?php 
-                print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-                print '<input type="hidden" name="action" value="updatepalier">';
-                print '<input type="hidden" name="transport" value="'.$tid.'">';
+                
                 ?>
             	<td align="left">Pays</td>
                 <td align="center">Département</td>
@@ -257,34 +274,36 @@ if(count($TTransport))
                     $i++;
                 }
                 print '<td>';
-                
                 print '<input type="text" name="newPalier['.$tid.'-'.$k.']">';
-                print '<input type="submit" value="'.$langs->trans('Save').'">';
                 print '</td>';
-                print '</form>';
                 print '</tr>';
                 
-
         	    foreach ($TTarifs[$k] as $dpt => $zip)
             	{
             	   foreach ($zip as $code => $prices)
             	   {
+            	       
             	       print '<tr>';
             	       print '<td align="left">'.$TCountry[$k].'</td>';
             	       print '<td align="center">'.$dpt.'</td>';
             	       print '<td align="center">'.((!empty($code)) ? $code : "").'</td>';
             	       foreach ($country as $tr){
-            	           print '<td align="center">'.$prices[$tr].' €</td>';
+            	           print '<td align="center">';
+            	           print '<input type="checkbox" name="pricesToUpdate['.$TTarifsId[$k][$dpt][$code][$tr].']"> ';
+            	           print '<input class="prixpalier" onchange="checkit('.$TTarifsId[$k][$dpt][$code][$tr].')" size="6" type="text" name="prices['.$TTarifsId[$k][$dpt][$code][$tr].']" value="'.$prices[$tr].'"> €</td>';
             	       }
             	       print '<td></td>';
             	       print '</tr>';
             	   }
             	}
-            	
             print '</table>';
+            print '<div class="tabsAction">';
+            print '<input type="submit" value="'.$langs->trans('Save').'">';
+            print '</div>';
+            print '</form>';
             }
         }
     }           	    
-        
+ 
 }
 
