@@ -25,13 +25,13 @@ if (! $user->admin) {
 // Parameters
 $action = GETPOST('action', 'alpha');
 $newPalier = GETPOST('newPalier', 'array');
+$paliers = GETPOST('paliers', 'array');
 
 /**
  * Actions
  */
-if ($action == "addpalier")
+if ($action == "updatepalier")
 {
-//     var_dump($newPalier);
     foreach ($newPalier as $id => $palier)
     {
         if (!empty($palier)){
@@ -82,6 +82,55 @@ if ($action == "addpalier")
         }
         
     }
+    
+    if(!empty($paliers))
+    {
+        $fk_trans = GETPOST('transport', 'int');
+        $sql = "SELECT rowid, poids FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE rowid IN ('".implode("','", array_keys($paliers[$fk_trans]))."')";
+        $res = $db->query($sql);
+        $toUpdate = array();
+        if($res){
+            while($obj = $db->fetch_object($res))
+            {
+                if ((int)$paliers[$fk_trans][$obj->rowid] !== (int) $obj->poids)
+                    $toUpdate[] = $obj->rowid;
+            }
+        }
+        
+        foreach ($paliers[$fk_trans] as $palid => $val)
+        {
+            if(in_array($palid, $toUpdate))
+            {
+                $sql = "UPDATE ".MAIN_DB_PREFIX."c_paliers_transporteurs";
+                $sql.= " SET poids = ".$val;
+                $sql.= " WHERE rowid=".$palid;
+                $res = $db->query($sql);
+            }
+        }
+    }
+    
+    
+}
+if ($action == "delpalier")
+{
+    $fk_palier = GETPOST('fk_palier');
+//     var_dump($fk_palier);
+    if(!empty($fk_palier)){
+        $error = 0;
+        $db->begin();
+        
+        $sql = "DELETE FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$fk_palier;
+        $res = $db->query($sql);
+        if(!$res) $error++;
+        
+        $sql = "DELETE FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE rowid = ".$fk_palier;
+        $res = $db->query($sql);
+        if(!$res) $error++;
+        
+        if($error) $db->rollback();
+        else $db->commit();
+    }
+    
 }
 
 $page_name = "Grilles transport";
@@ -163,11 +212,17 @@ if(count($TTransport))
             foreach ($TTranches['pays'] as $k => $country)
             {
                 print_titre($label.' - '.$TCountry[$k]);
+//                 var_dump($TTranches['pays'][$k], $TTranches['poids']);//exit;
             ?>
             
             <table class="noborder" width="100%">
                 <!-- entête -->
                 <tr class="liste_titre">
+                <?php 
+                print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+                print '<input type="hidden" name="action" value="updatepalier">';
+                print '<input type="hidden" name="transport" value="'.$tid.'">';
+                ?>
             	<td align="left">Pays</td>
                 <td align="center">Département</td>
             	<td align="center">Code postal</td>
@@ -177,21 +232,24 @@ if(count($TTransport))
                 foreach ($country as $seuil){
 //                     var_dump($country);
                     if((int)empty($TTranches['poids'][$seuil])) {
-                        print '<td align="center">Timbre</td>';
-                        print '<td align="center">';
+                        print '<td align="center">Timbre';
+                        print '<br>de '. $TTranches['poids'][$seuil] . ' à ';
+                        
                         $first = true;
                     }
                     else {
                         
                         if($first) {
-                            print 'de '. $TTranches['poids'][$seuil] . ' à ';
+                            print $TTranches['poids'][$seuil] . 'kg <a href="?action=delpalier&fk_palier='.$country[$i-1].'">'.img_delete('supprimer le palier').'</a></td>';
+                            print '<td align="center">';
+                            print 'de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> à ';
                             $first = false;
-                        } elseif ($i < ($num -1) ) {
-                            print $TTranches['poids'][$seuil] . 'kg</td>';
-                            print '<td align="center">de '. $TTranches['poids'][$seuil] . ' à ';
+                        } elseif ($i < ($num - 1) ) {
+                            print $TTranches['poids'][$seuil] . 'kg <a href="?action=delpalier&fk_palier='.$country[$i-1].'">'.img_delete('supprimer le palier').'</a></td>';
+                            print '<td align="center">de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> à ';
                         } elseif ($i == $num -1 ) {
-                            print $TTranches['poids'][$seuil] . 'kg</td>';
-                            print '<td align="center">plus de '. $TTranches['poids'][$seuil] . ' kg</td>';
+                            print $TTranches['poids'][$seuil] . 'kg <a href="?action=delpalier&fk_palier='.$country[$i-1].'">'.img_delete('supprimer le palier').'</a></td>';
+                            print '<td align="center">plus de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg <a href="?action=delpalier&fk_palier='.$country[$i].'">'.img_delete('supprimer le palier').'</a></td>';
                         }
                         
                     }
@@ -199,11 +257,11 @@ if(count($TTransport))
                     $i++;
                 }
                 print '<td>';
-                print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-                print '<input type="hidden" name="action" value="addpalier">';
-                print '<input type="text" name="newPalier['.$tid.'-'.$k.']">'
-                     .'<input type="submit" value="ajouter">';
+                
+                print '<input type="text" name="newPalier['.$tid.'-'.$k.']">';
+                print '<input type="submit" value="'.$langs->trans('Save').'">';
                 print '</td>';
+                print '</form>';
                 print '</tr>';
                 
 
@@ -218,7 +276,7 @@ if(count($TTransport))
             	       foreach ($country as $tr){
             	           print '<td align="center">'.$prices[$tr].' €</td>';
             	       }
-            	       
+            	       print '<td></td>';
             	       print '</tr>';
             	   }
             	}
@@ -226,98 +284,7 @@ if(count($TTransport))
             print '</table>';
             }
         }
+    }           	    
         
-//         $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_grilles_transporteurs WHERE fk_trans = ".$tid;
-//         $res = $db->query($sql);
-//         if($res)
-//         {
-//             if($db->num_rows($res)) { 
-                
-//                 print_titre($label);
-//                 $TData = array();
-                
-// //                 while ($obj = $db->fetch_object($res))
-// //                 {
-// //                     $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
-// //                 }
-                
-                 
-//                 	$pays = 0;
-//                 	while ($obj = $db->fetch_object($res))
-//                 	{
-//                 	    $pays = $obj->fk_pays;
-//                 	    $dpt = $obj->departement;
-//                 	    $zip = $obj->zipcode;
-//                 	    $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
-//                 	}
-//                 	$entete = false;
-//                 	foreach ($TData as $pays => $depts)
-//                 	{ 
-//                 	    foreach ($depts as $dpt => $zip)
-//                     	{ 
-//                     	   foreach ($zip as $code => $prices)
-//                     	   {
-//                     	       if(!$entete)
-//                     	       {
-//                     	           ?>
-<!--                 <table class="noborder" width="100%"> -->
-<!--                 	<tr class="liste_titre"> -->
-<!--                 		<td align="left">Pays</td> -->
-<!--                 		<td align="center">Département</td> -->
-<!--                 		<td align="center">Code postal</td> -->
-<!--                 		<td align="center">Timbre</td> -->
-                		<?php 
-//                 		$oldpds = 0;
-//                     	foreach ($prices as $pds => $prix){
-//                     	    ?>
-                    	    <!-- <td align="center"><?php //echo 'de '. $oldpds . ' à '; ?><input type="text" name="newPalier[[view.contrat]]" value="<?php //echo $pds ?>" size="5" />kg</td> -->
-                    	<?php 
-//                     	   $oldpds = $pds;
-//                     	}?>
-                <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-<!--                 		<td><input type="text" name="newPalier[[view.contrat]]" value="" size="5" />&nbsp;kg</td> -->
-<!--                 	</tr> -->
-                	
-                	<?php
-//                     	           $entete = true;
-//                     	       }
-//                     	    ?>
-<!--                 	    <tr class="oddeven"> -->
-                	    
-                    	    <td align="left"><?php //echo $TCountry[$pays] ?></td>
-                    	    <td align="center"><?php //echo $dpt; ?></td>
-                    	    <td align="center"><?php //echo (!empty($code)) ? $code : ""; ?></td>
-<!--                     	    <td align="center">Timbre</td> -->
-                    	    <?php 
-//                     	    foreach ($prices as $pds => $prix){
-//                     	    ?>
-                    	    <!--<td align="center"><input type="text" name="newPalier[[view.contrat]]" value="<?php //echo $prix ?>" size="5" />&nbsp;€</td>-->
-                    	    <?php }?>
-                    	    <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-<!--                     	    <td>&nbsp;</td> -->
-                	    
-<!--                 	    </tr> -->
-                	    <?php 
-//                     	   }
-//                     	}
-//                 	}
-//                 	?>
-                	
-<!--                 </table> -->
-                <?php
-//             }
-//         }
-        
-    //}
 }
 
-
-?>
-
-<!--<div class="tabsAction">-->
-<!--<input type="submit" name="save" value="Enregistrer" class="button" />-->
-<!--</div>-->
-
-<?php 
-//print $form->selectarray('transports', $TTransport, '', 1);
-?>
