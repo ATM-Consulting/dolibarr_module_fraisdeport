@@ -24,6 +24,65 @@ if (! $user->admin) {
 
 // Parameters
 $action = GETPOST('action', 'alpha');
+$newPalier = GETPOST('newPalier', 'array');
+
+/**
+ * Actions
+ */
+if ($action == "addpalier")
+{
+//     var_dump($newPalier);
+    foreach ($newPalier as $id => $palier)
+    {
+        if (!empty($palier)){
+            $tmp = explode('-', $id);
+            $trans = $tmp[0];
+            $pays = $tmp[1];
+            
+             $db->begin();
+            
+            $sql = "SELECT p.rowid FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs as p";
+            $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t on t.fk_palier = p.rowid";
+            $sql.= " WHERE p.fk_trans = ". $trans;
+            $sql.= " AND t.fk_pays = ".$pays;
+            $sql.= " AND p.poids = ".$palier;
+            $res = $db->query($sql);
+            if ($res){
+                $num = $db->num_rows($res);
+                if($num){
+                    setEventMessage("Ce palier existe déjà !", "warning");
+                    Header('location: '.$_SERVER['PHP_SELF']);
+                    exit;
+                } else {
+                    $sqlInsert = "INSERT INTO ".MAIN_DB_PREFIX."c_paliers_transporteurs (fk_trans, poids, active) VALUES ('".$trans."','".$palier."', 1)";
+                    $resinsert = $db->query($sqlInsert);
+                    if(!$resinsert){
+                        $db->rollback();
+                        print "erreur ";
+                        print $db->lasterror;
+                    }
+                    else {
+                        $fk_palier = $db->last_insert_id(MAIN_DB_PREFIX.'c_paliers_transporteurs');
+                        
+                        $sqlzone = "SELECT DISTINCT departement, zipcode FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs";
+                        $sqlzone.= " WHERE fk_pays = " . $pays;
+                        $reszone = $db->query($sqlzone);
+                        if ($reszone)
+                        {
+                            while ($obj = $db->fetch_object($reszone))
+                            {
+                                $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode, tarif, active) VALUES ('".$fk_palier."','".$pays."','".$obj->departement."','".$obj->zipcode."', 0, 1)";
+                                $resql = $db->query($sql);
+                            }
+                        }
+                    }
+                }
+            }
+            $db->commit();
+        }
+        
+    }
+}
 
 $page_name = "Grilles transport";
 llxHeader('', $langs->trans($page_name));
@@ -116,7 +175,7 @@ if(count($TTransport))
                 $i = 0;
                 $num = count($country);
                 foreach ($country as $seuil){
-                    
+//                     var_dump($country);
                     if((int)empty($TTranches['poids'][$seuil])) {
                         print '<td align="center">Timbre</td>';
                         print '<td align="center">';
@@ -139,126 +198,32 @@ if(count($TTransport))
                     
                     $i++;
                 }
+                print '<td>';
+                print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+                print '<input type="hidden" name="action" value="addpalier">';
+                print '<input type="text" name="newPalier['.$tid.'-'.$k.']">'
+                     .'<input type="submit" value="ajouter">';
+                print '</td>';
                 print '</tr>';
                 
-//                 var_dump($k, $TTarifs[$k]);
-//             	exit;
-//             	foreach ($TTarifs as $pays => $depts)
-//             	{
-            	    foreach ($TTarifs[$k] as $dpt => $zip)
-                	{
-                	   foreach ($zip as $code => $prices)
-                	   {
-                	       print '<tr>';
-                	       //var_dump($prices);
-                	       print '<td align="left">'.$TCountry[$k].'</td>';
-                	       print '<td align="center">'.$dpt.'</td>';
-                	       print '<td align="center">'.((!empty($code)) ? $code : "").'</td>';
-                	       
-                	       foreach ($prices as $id => $prix){
-                	           print '<td align="center">'.$prix.' €</td>';
-                	       }
-                	       
-                	       print '</tr>';
-                	   }
-                	}
-//             	}
+
+        	    foreach ($TTarifs[$k] as $dpt => $zip)
+            	{
+            	   foreach ($zip as $code => $prices)
+            	   {
+            	       print '<tr>';
+            	       print '<td align="left">'.$TCountry[$k].'</td>';
+            	       print '<td align="center">'.$dpt.'</td>';
+            	       print '<td align="center">'.((!empty($code)) ? $code : "").'</td>';
+            	       foreach ($country as $tr){
+            	           print '<td align="center">'.$prices[$tr].' €</td>';
+            	       }
+            	       
+            	       print '</tr>';
+            	   }
+            	}
             	
             print '</table>';
             }
         }
         
-//         $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_grilles_transporteurs WHERE fk_trans = ".$tid;
-//         $res = $db->query($sql);
-//         if($res)
-//         {
-//             if($db->num_rows($res)) { 
-                
-//                 print_titre($label);
-//                 $TData = array();
-                
-// //                 while ($obj = $db->fetch_object($res))
-// //                 {
-// //                     $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
-// //                 }
-                
-                 
-//                 	$pays = 0;
-//                 	while ($obj = $db->fetch_object($res))
-//                 	{
-//                 	    $pays = $obj->fk_pays;
-//                 	    $dpt = $obj->departement;
-//                 	    $zip = $obj->zipcode;
-//                 	    $TData[$obj->fk_pays][$obj->departement][$obj->zipcode][$obj->poids] = $obj->tarif;
-//                 	}
-//                 	$entete = false;
-//                 	foreach ($TData as $pays => $depts)
-//                 	{ 
-//                 	    foreach ($depts as $dpt => $zip)
-//                     	{ 
-//                     	   foreach ($zip as $code => $prices)
-//                     	   {
-//                     	       if(!$entete)
-//                     	       {
-//                     	           ?>
-<!--                 <table class="noborder" width="100%"> -->
-<!--                 	<tr class="liste_titre"> -->
-<!--                 		<td align="left">Pays</td> -->
-<!--                 		<td align="center">Département</td> -->
-<!--                 		<td align="center">Code postal</td> -->
-<!--                 		<td align="center">Timbre</td> -->
-                		<?php 
-//                 		$oldpds = 0;
-//                     	foreach ($prices as $pds => $prix){
-//                     	    ?>
-                    	    <!-- <td align="center"><?php //echo 'de '. $oldpds . ' à '; ?><input type="text" name="newPalier[[view.contrat]]" value="<?php //echo $pds ?>" size="5" />kg</td> -->
-                    	<?php 
-//                     	   $oldpds = $pds;
-//                     	}?>
-                <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-<!--                 		<td><input type="text" name="newPalier[[view.contrat]]" value="" size="5" />&nbsp;kg</td> -->
-<!--                 	</tr> -->
-                	
-                	<?php
-//                     	           $entete = true;
-//                     	       }
-//                     	    ?>
-<!--                 	    <tr class="oddeven"> -->
-                	    
-                    	    <td align="left"><?php //echo $TCountry[$pays] ?></td>
-                    	    <td align="center"><?php //echo $dpt; ?></td>
-                    	    <td align="center"><?php //echo (!empty($code)) ? $code : ""; ?></td>
-<!--                     	    <td align="center">Timbre</td> -->
-                    	    <?php 
-//                     	    foreach ($prices as $pds => $prix){
-//                     	    ?>
-                    	    <!--<td align="center"><input type="text" name="newPalier[[view.contrat]]" value="<?php //echo $prix ?>" size="5" />&nbsp;€</td>-->
-                    	    <?php }?>
-                    	    <!-- 		<td align="center">de [palier.lastMontant; block=td] &euro; à [palier.montant;strconv=no] &euro; [palier.toDelete;strconv=no]</td> -->
-<!--                     	    <td>&nbsp;</td> -->
-                	    
-<!--                 	    </tr> -->
-                	    <?php 
-//                     	   }
-//                     	}
-//                 	}
-//                 	?>
-                	
-<!--                 </table> -->
-                <?php
-//             }
-//         }
-        
-    //}
-}
-
-
-?>
-
-<!--<div class="tabsAction">-->
-<!--<input type="submit" name="save" value="Enregistrer" class="button" />-->
-<!--</div>-->
-
-<?php 
-//print $form->selectarray('transports', $TTransport, '', 1);
-?>
