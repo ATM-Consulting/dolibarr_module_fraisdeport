@@ -28,7 +28,7 @@ $newPalier = GETPOST('newPalier', 'array');
 $paliers = GETPOST('paliers', 'array');
 $fk_trans = GETPOST('transport', 'int');
 $fk_pays = GETPOST('pays', 'int');
-$toUpdate = GETPOST('pricesToUpdate', 'array');
+$pricestoUpdate = GETPOST('pricesToUpdate', 'array');
 $prices = GETPOST('prices', 'array');
 
 /**
@@ -36,10 +36,10 @@ $prices = GETPOST('prices', 'array');
  */
 if ($action == "update")
 {
-    var_dump($_POST);
+//     var_dump($_POST);
     foreach ($newPalier as $id => $palier)
     {
-        if (!empty($palier)){
+        if ($palier !== ''){
             $tmp = explode('-', $id);
             $trans = $tmp[0];
             $pays = $tmp[1];
@@ -113,11 +113,16 @@ if ($action == "update")
         }
     }
     
-    if(!empty($toUpdate))
+    if(!empty($pricestoUpdate))
     {
-        foreach ($toUpdate as $id => $dummy)
+//         var_dump($pricestoUpdate);
+        foreach ($pricestoUpdate as $id => $dummy)
         {
-            
+//             print $id.' - '.$prices[$id].'<br>';
+            $sql = "UPDATE ".MAIN_DB_PREFIX."c_tarifs_transporteurs";
+            $sql.= " SET tarif = '".$prices[$id]."'";
+            $sql.= " WHERE rowid=".$id;
+            $res = $db->query($sql);
         }
     }
     
@@ -289,8 +294,8 @@ if(count($TTransport))
             	       print '<td align="center">'.((!empty($code)) ? $code : "").'</td>';
             	       foreach ($country as $tr){
             	           print '<td align="center">';
-            	           print '<input type="checkbox" name="pricesToUpdate['.$TTarifsId[$k][$dpt][$code][$tr].']"> ';
-            	           print '<input class="prixpalier" onchange="checkit('.$TTarifsId[$k][$dpt][$code][$tr].')" size="6" type="text" name="prices['.$TTarifsId[$k][$dpt][$code][$tr].']" value="'.$prices[$tr].'"> €</td>';
+            	           print '<input type="checkbox" name="pricesToUpdate['.$TTarifsId[$k][$dpt][$code][$tr].']" style="display:none"> ';
+            	           print '<input class="prixpalier" size="6" type="text" name="prices['.$TTarifsId[$k][$dpt][$code][$tr].']" value="'.$prices[$tr].'" data-prix="'.$prices[$tr].'"> €</td>';
             	       }
             	       print '<td></td>';
             	       print '</tr>';
@@ -303,7 +308,7 @@ if(count($TTransport))
             print '</form>';
             }
         }
-    }           	    
- 
+    }
+    
 }
 
