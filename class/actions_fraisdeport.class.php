@@ -108,6 +108,7 @@ class ActionsFraisdeport
                                 ,poids:<?php echo $weight ?>
                                 ,pays:<?php echo empty($country) ? 0 : $country ?>
                                 ,dpt:<?php echo empty($dpt) ? 0 : $dpt ?>
+                                ,obj_id:<?php echo $object->id ?>
                             }
                             ,method:"post"
                             ,dataType:'json'

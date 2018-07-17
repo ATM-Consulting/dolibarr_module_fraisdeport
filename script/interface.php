@@ -7,6 +7,7 @@ $put = GETPOST('put');
 $weight = GETPOST('poids');
 $country = GETPOST('pays');
 $dpt = GETPOST('dpt');
+$obj_id = GETPOST('obj_id');
 
 if (empty($weight))
 {
@@ -32,7 +33,7 @@ switch($put){
 
 function checkprice($weight, $country, $dpt)
 {
-    global $db;
+    global $db, $langs, $obj_id;
     
     $result = array();
     if (empty($weight)) 
@@ -64,7 +65,7 @@ function checkprice($weight, $country, $dpt)
     {
         foreach ($TTransport as $tid)
         {
-            $sql = "SELECT t.tarif, s.libelle as label";
+            $sql = "SELECT t.tarif, s.libelle as label, s.rowid";
             $sql.= " FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t";
             $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paliers_transporteurs as p ON t.fk_palier = p.rowid";
             $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_shipment_mode as s ON s.rowid = p.fk_trans";
@@ -77,24 +78,56 @@ function checkprice($weight, $country, $dpt)
             if($resql2)
             {
                 $obj = $db->fetch_object($resql2);
-                if(!empty($obj->tarif)) $result[$obj->label] = $obj->tarif;
+                if(!empty($obj->tarif)) {
+                    $result[$obj->rowid]['label'] = $obj->label;
+                    $result[$obj->rowid]['prix'] = $obj->tarif;
+                }
             }
             $t[] = $tid;
             //if($tid == '23') break;
         }
     }
     
-    $ret = '';
+    $ret = '<p>Poids pris en compte pour le calcul : ' . $weight .' kg</p>';
     if(count($result))
     {
         $ret.='<table width="100%" class="liste">';
-        $ret .= '<tr class="liste_titre"><td>Transporteur</td><td>Cout de l\'envoi</td></tr>';
-        foreach ($result as $name => $price)
+        $ret .= '<tr class="liste_titre"><td>Transporteur</td><td>Cout de l\'envoi</td><td align="center">Appliquer</td></tr>';
+        foreach ($result as $id => $price)
         {
-            $p = ($price < 1) ? $price * $weight : $price;
-            $ret .= '<tr class="oddeven"><td>'.$name.'</td><td>'.$p.'</td></tr>';
+            $p = ($price['prix'] < 1) ? $price['prix'] * $weight : $price['prix'];
+            $ret .= '<tr class="oddeven"><td>'.$price['label'].'</td><td>'.$p.'</td>';
+            $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$price['prix'].'">'.$langs->trans('Apply').'</a></td>';
+            $ret .= '</tr>';
         }
         $ret.='</table>';
+        
+        $ret.= '<script>';
+        $ret.= '$(document).ready(function(){
+                    $(".applyPrice").on("click", function(e){
+                        e.preventDefault();
+                        transp = $(this).attr("data-method");
+                        price = $(this).attr("data-pv");
+                        $.ajax({
+                            url : "?action=setshippingmethod&id='.$obj_id.'&shipping_method_id="+transp
+                        }).done(function(){
+                            $("#tva_tx").hide();
+                            $("#price_ht").hide();
+                            $("#units").hide();
+                            $("#np_markRate").hide();
+                            $("#np_markRate").next().hide();
+                            $("#prod_entry_mode_predef").prop("checked", true);
+                            $("#search_idprod").val("TRANSPORT");
+                            $("#idprod").val("839");
+                            $("#fournprice_predef").val("inputprice");
+                            $("#buying_price").show().val(price);
+                            $("[title=Close]").click()
+                        });
+                    });
+                });';
+        $ret.= '</script>';
+        
+        
     }
     
     if (empty($ret)) print json_encode(array('status'=>500, 'msg' => "Aucun tarif trouvé pour les paramètres de cete commande", 'liste' => $ret));
