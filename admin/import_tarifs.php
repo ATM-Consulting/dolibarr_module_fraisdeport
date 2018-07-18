@@ -199,23 +199,7 @@ if($action === 'import') {
             if ($data[1] == 'PB') $data[1] = "NL";
             $fk_palier = $TPaliers[$TTransporteur[$data[0]].'-'.$data[3]];
             
-            $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_departements WHERE code_departement = ".$data[2];
-            $resql = $db->query($sql);
-            if(! $resql) {
-                var_dump($data[2]);
-                print $k.' : '.$db->lasterror.'<br>'; exit;
-            } else {
-                if (!$db->num_rows($resql)) {
-                    var_dump($data[2]);
-                    print $k.' : départements inconnu.';
-                    exit;
-                } else {
-                    $obj = $db->fetch_object($resql);
-                    $dpt = $obj->rowid;
-                }
-            }
-            
-            $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (rowid, fk_palier, fk_pays, departement, zipcode, tarif, active) VALUES (NULL, '".$fk_palier."', '".$TCountry[$data[1]]."', '".$dpt."', '".$data[5]."', '".$data[4]."', '1');";
+            $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (rowid, fk_palier, fk_pays, departement, zipcode, tarif, active) VALUES (NULL, '".$fk_palier."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[5]."', '".$data[4]."', '1');";
             $resql = $db->query($sql);
             if(! $resql) {
                 var_dump($fk_palier, $data[0].'-'.$data[3]);

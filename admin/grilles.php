@@ -315,7 +315,6 @@ if(count($TTransport))
         // pour chaque tranche récupérer les tarifs correspondants par pays/dpt/ville
         $TTarifs = array();
         
-        // TODO modifier la requte pour suivre le nouveau format d'import 
         $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier IN ('".implode("','", array_keys($TTranches['poids']))."') ORDER BY fk_pays, departement, zipcode ASC";
 //          var_dump($sql);
         $res = $db->query($sql);
