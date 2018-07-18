@@ -333,24 +333,20 @@ if(count($TTransport))
                 foreach ($country as $seuil){
 //                     var_dump($country);
                     if((int)empty($TTranches['poids'][$seuil])) {
-                        print '<td align="center">Timbre';
-                        print '<br>de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> à ';
+                        print '<td align="center">Timbre</td>';
                         
                         $first = true;
                     }
                     else {
                         
                         if($first) {
-                            print $TTranches['poids'][$seuil] . 'kg <a href="?action=delpalier&fk_palier='.$country[$i-1].'&poids='.$TTranches['poids'][$country[$i-1]].'">'.img_delete('supprimer le palier').'</a></td>';
                             print '<td align="center">';
-                            print 'de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> à ';
+                            print 'de 0  à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg ';
+                            print '<br><a href="?action=delpalier&fk_palier='.$seuil.'&poids='.$TTranches['poids'][$seuil].'">'.img_delete('supprimer le palier').'</a></td>';
                             $first = false;
-                        } elseif ($i < ($num - 1) ) {
-                            print $TTranches['poids'][$seuil] . 'kg <a href="?action=delpalier&fk_palier='.$country[$i-1].'&poids='.$TTranches['poids'][$country[$i-1]].'">'.img_delete('supprimer le palier').'</a></td>';
-                            print '<td align="center">de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> à ';
-                        } elseif ($i == $num -1 ) {
-                            print $TTranches['poids'][$seuil] . 'kg <a href="?action=delpalier&fk_palier='.$country[$i-1].'&poids='.$TTranches['poids'][$country[$i-1]].'">'.img_delete('supprimer le palier').'</a></td>';
-                            print '<td align="center">plus de <input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg <a href="?action=delpalier&fk_palier='.$country[$i].'">'.img_delete('supprimer le palier').'</a></td>';
+                        } elseif ($i < ($num) ) {
+                            print '<td align="center">de '.$TTranches['poids'][$country[$i-1]].' à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg ';
+                            print '<br><a href="?action=delpalier&fk_palier='.$seuil.'&poids='.$TTranches['poids'][$seuil].'">'.img_delete('supprimer le palier').'</a></td>';
                         }
                         
                     }
