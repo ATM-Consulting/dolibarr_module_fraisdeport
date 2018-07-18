@@ -76,19 +76,45 @@ function checkprice($weight, $country, $dpt)
             $sql.= " FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t";
             $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paliers_transporteurs as p ON t.fk_palier = p.rowid";
             $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_shipment_mode as s ON s.rowid = p.fk_trans";
-            $sql.= " WHERE p.poids < ".$weight;
+            $sql.= " WHERE p.poids > ".$weight;
             $sql.= " AND p.fk_trans = '".$tid."'";
             $sql.= " AND t.fk_pays = ".$country;
             if($country = 1) $sql.= " AND t.departement = ".$dpt;
-            $sql.= " ORDER BY poids DESC LIMIT 1";
+            $sql.= " ORDER BY poids ASC LIMIT 1";
             $resql2 = $db->query($sql);
             if($resql2)
             {
-                $obj = $db->fetch_object($resql2);
-                if(!empty($obj->tarif)) {
-                    $result[$obj->rowid]['label'] = $obj->label;
-                    $result[$obj->rowid]['prix'] = $obj->tarif;
+                if($db->num_rows($resql2))
+                {
+                    $obj = $db->fetch_object($resql2);
+                    if(!empty($obj->tarif)) {
+                        $result[$obj->rowid]['label'] = $obj->label;
+                        $result[$obj->rowid]['prix'] = $obj->tarif;
+                    }
+                } else {
+                    $sql = "SELECT t.tarif, s.libelle as label, s.rowid";
+                    $sql.= " FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t";
+                    $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paliers_transporteurs as p ON t.fk_palier = p.rowid";
+                    $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_shipment_mode as s ON s.rowid = p.fk_trans";
+                    $sql.= " WHERE p.poids < ".$weight;
+                    $sql.= " AND p.fk_trans = '".$tid."'";
+                    $sql.= " AND t.fk_pays = ".$country;
+                    if($country = 1) $sql.= " AND t.departement = ".$dpt;
+                    $sql.= " ORDER BY poids DESC LIMIT 1";
+                    $resql3 = $db->query($sql);
+                    if($resql3)
+                    {
+                        if($db->num_rows($resql3))
+                        {
+                            $obj = $db->fetch_object($resql3);
+                            if(!empty($obj->tarif)) {
+                                $result[$obj->rowid]['label'] = $obj->label;
+                                $result[$obj->rowid]['prix'] = $obj->tarif;
+                            }
+                        }
+                    }
                 }
+                
             }
             $t[] = $tid;
             //if($tid == '23') break;

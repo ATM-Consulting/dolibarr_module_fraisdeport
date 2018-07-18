@@ -50,15 +50,39 @@ if ($action == "update")
 //     exit;
 //     if($addline)
 //     {
-//     var_dump($_POST);
-    if(!empty($line_state))
+    //var_dump($_POST); exit;
+    if($line_state > 0)
     {
+        // TODO recupérer le state_code correspondant au line_state et l'intégrer à la requête
+        $sql = "SELECT code_departement FROM ".MAIN_DB_PREFIX."c_departements WHERE rowid = ".$line_state;
+        $res = $db->query($sql);
+        if($res)
+        {
+            $obj = $db->fetch_object($res);
+            $state_code = $obj->code_departement;
+        }
+        
         if (empty($line_zip)) $line_zip = 0;
         foreach ($line_prices as $id_palier => $prix)
         {
             if(empty($prix)) $prix = 0;
-            $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",".(int)$line_state.",'".$line_zip."',".(float)$prix.", 1)";
-            $db->query($sql);
+            $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$id_palier." AND fk_pays = ".$fk_pays." AND departement = ".$state_code." AND zipcode = ".$line_zip;
+            $res = $db->query($sql);
+            if($res)
+            {
+                if($db->num_rows($res))
+                {
+                    $obj = $db->fetch_object($res);
+                    $sql = "UPDATE ".MAIN_DB_PREFIX."c_tarifs_transporteurs SET tarif = ".(float)$prix." WHERE rowid = ".$obj->rowid;
+                    $db->query($sql);
+                }
+                else
+                {
+                    $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
+                    $db->query($sql);
+                }
+            }
+            
         }
     }
 //     }
@@ -330,12 +354,11 @@ if(count($TTransport))
             <?php
                 $i = 0;
                 $num = count($country);
+                $first = true;
                 foreach ($country as $seuil){
 //                     var_dump($country);
                     if((int)empty($TTranches['poids'][$seuil])) {
                         print '<td align="center">Timbre</td>';
-                        
-                        $first = true;
                     }
                     else {
                         
@@ -386,27 +409,20 @@ if(count($TTransport))
             <?php
                 $i = 0;
                 $num = count($country);
+                $first = true;
                 foreach ($country as $seuil){
 //                     var_dump($country);
                     if((int)empty($TTranches['poids'][$seuil])) {
-                        print '<td align="center">Timbre';
-                        print '<br>de '. $TTranches['poids'][$seuil] . ' à ';
-                        
-                        $first = true;
+                        print '<td align="center">Timbre</td>';
                     }
                     else {
                         
                         if($first) {
-                            print $TTranches['poids'][$seuil] . 'kg </td>';
                             print '<td align="center">';
-                            print 'de '. $TTranches['poids'][$seuil] . ' à ';
+                            print 'de 0  à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg</td>';
                             $first = false;
-                        } elseif ($i < ($num - 1) ) {
-                            print $TTranches['poids'][$seuil] . 'kg </td>';
-                            print '<td align="center">de '. $TTranches['poids'][$seuil] . ' à ';
-                        } elseif ($i == $num -1 ) {
-                            print $TTranches['poids'][$seuil] . 'kg </td>';
-                            print '<td align="center">plus de '. $TTranches['poids'][$seuil] . ' kg</td>';
+                        } elseif ($i < ($num) ) {
+                            print '<td align="center">de '.$TTranches['poids'][$country[$i-1]].' à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg</td>';
                         }
                         
                     }
@@ -416,8 +432,8 @@ if(count($TTransport))
                 print '<td>';
             	print '<tr>';
             	//print '<td align="left">'.$TCountry[$k].'</td>';
-//             	print '<td colspan="2" align="center">'.$formcompany->select_state('', $k, 'line_state').'</td>';
-            	print '<td colspan="2" align="center"><input type="text" placeholder="departement" size="10" name="line_state"></td>';
+            	print '<td colspan="2" align="center">'.$formcompany->select_state('', $k, 'line_state').'</td>';
+//             	print '<td colspan="2" align="center"><input type="text" placeholder="departement" size="10" name="line_state"></td>';
             	print '<td align="center"><input type="text" placeholder="code postal" size="10" name="line_zip"></td>';
             	$i = 0;
             	foreach ($country as $tr){
