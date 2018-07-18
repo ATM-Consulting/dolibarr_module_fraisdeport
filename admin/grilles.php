@@ -65,23 +65,38 @@ if ($action == "update")
         if (empty($line_zip)) $line_zip = 0;
         foreach ($line_prices as $id_palier => $prix)
         {
-            if(empty($prix)) $prix = 0;
             $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$id_palier." AND fk_pays = ".$fk_pays." AND departement = ".$state_code." AND zipcode = ".$line_zip;
             $res = $db->query($sql);
-            if($res)
-            {
-                if($db->num_rows($res))
+            
+            if($prix !== ''){
+                if($res)
                 {
-                    $obj = $db->fetch_object($res);
-                    $sql = "UPDATE ".MAIN_DB_PREFIX."c_tarifs_transporteurs SET tarif = ".(float)$prix." WHERE rowid = ".$obj->rowid;
-                    $db->query($sql);
-                }
-                else
-                {
-                    $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
-                    $db->query($sql);
+                    if($db->num_rows($res))
+                    {
+                        $obj = $db->fetch_object($res);
+                        $sql = "UPDATE ".MAIN_DB_PREFIX."c_tarifs_transporteurs SET tarif = ".(float)$prix." WHERE rowid = ".$obj->rowid;
+                        $db->query($sql);
+                    }
+                    else
+                    {
+                        $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
+                        $db->query($sql);
+                    }
                 }
             }
+            else 
+            {
+                if($res)
+                {
+                    if(!$db->num_rows($res))
+                    {
+                        $prix = 0;
+                        $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
+                        $db->query($sql);
+                    }
+                }
+            }
+            
             
         }
     }
