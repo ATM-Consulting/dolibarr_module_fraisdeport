@@ -130,7 +130,7 @@ function checkprice($weight, $country, $dpt)
         {
             $p = ($price['prix'] < 1) ? $price['prix'] * $weight : $price['prix'];
             $ret .= '<tr class="oddeven"><td>'.$price['label'].'</td><td>'.$p.'</td>';
-            if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$price['prix'].'">'.$langs->trans('Apply').'</a></td>';
+            if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$p.'">'.$langs->trans('Apply').'</a></td>';
             else $ret .= '<td align="center">service de transport à configurer</td>';
             $ret .= '</tr>';
         }

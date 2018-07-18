@@ -69,9 +69,9 @@ class ActionsFraisdeport
     {
         global $db;
         
-        if (in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context'])))
+        if (in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context'])) || in_array('invoicecard',explode(':',$parameters['context'])))
         {
-            print '<a href="#" class="butAction" id="transport">Calcul des frais de transport</a>';
+            if ($object->statut == '0') print '<a href="#" class="butAction" id="transport">Calcul des frais de transport</a>';
             
             $weight = $this->getCmdWeight($object);
             
