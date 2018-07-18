@@ -134,6 +134,7 @@ print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="300">';
 print ajax_constantonoff('FRAIS_DE_PORT_USE_TRANSPORT');
 print '</td></tr>';
+
 print '</table>';
 
 print '<script type="text/javascript">

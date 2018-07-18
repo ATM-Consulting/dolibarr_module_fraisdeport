@@ -1,5 +1,6 @@
 <?php
 require("../config.php");
+dol_include_once('/product/class/product.class.php');
 
 $get = GETPOST('get');
 $put = GETPOST('put');
@@ -33,7 +34,13 @@ switch($put){
 
 function checkprice($weight, $country, $dpt)
 {
-    global $db, $langs, $obj_id;
+    global $db, $langs, $obj_id, $conf;
+    
+    if (!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE))
+    {
+        $prod = new Product($db);
+        $prod->fetch($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE);
+    }
     
     $result = array();
     if (empty($weight)) 
@@ -97,7 +104,8 @@ function checkprice($weight, $country, $dpt)
         {
             $p = ($price['prix'] < 1) ? $price['prix'] * $weight : $price['prix'];
             $ret .= '<tr class="oddeven"><td>'.$price['label'].'</td><td>'.$p.'</td>';
-            $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$price['prix'].'">'.$langs->trans('Apply').'</a></td>';
+            if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$price['prix'].'">'.$langs->trans('Apply').'</a></td>';
+            else $ret .= '<td align="center">service de transport à configurer</td>';
             $ret .= '</tr>';
         }
         $ret.='</table>';
@@ -117,8 +125,8 @@ function checkprice($weight, $country, $dpt)
                             $("#np_markRate").hide();
                             $("#np_markRate").next().hide();
                             $("#prod_entry_mode_predef").prop("checked", true);
-                            $("#search_idprod").val("TRANSPORT");
-                            $("#idprod").val("839");
+                            $("#search_idprod").val("'.$prod->ref.'");
+                            $("#idprod").val("'.$prod->id.'");
                             $("#fournprice_predef").val("inputprice");
                             $("#buying_price").show().val(price);
                             $("[title=Close]").click()
