@@ -145,12 +145,8 @@ function checkprice($weight, $country, $dpt)
                         $.ajax({
                             url : "?action=setshippingmethod&id='.$obj_id.'&shipping_method_id="+transp
                         }).done(function(){
-                            $("#tva_tx").hide();
-                            $("#price_ht").hide();
-                            $("#units").hide();
-                            $("#np_markRate").hide();
-                            $("#np_markRate").next().hide();
-                            $("#prod_entry_mode_predef").prop("checked", true);
+                            $("#prod_entry_mode_predef").click();               
+                            $("#price_ht").show();
                             $("#search_idprod").val("'.$prod->ref.'");
                             $("#idprod").val("'.$prod->id.'");
                             $("#fournprice_predef").val("inputprice");
