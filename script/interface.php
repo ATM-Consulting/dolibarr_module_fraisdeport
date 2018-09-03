@@ -124,9 +124,21 @@ function checkprice($weight, $country, $dpt)
     $ret = '<p>Poids pris en compte pour le calcul : ' . $weight .' kg</p>';
     if(count($result))
     {
+        $res = array();
+        foreach ($result as $id => $price)
+        {
+            $res[$id] = $price['prix'];
+        }
+        asort($res);
+        
+        $sorted = array();
+        foreach ($res as $k => $v) $sorted[$k] = $result[$k];
+        
+        //var_dump($res, $sorted);
+        
         $ret.='<table width="100%" class="liste">';
         $ret .= '<tr class="liste_titre"><td>Transporteur</td><td>Cout de l\'envoi</td><td align="center">Appliquer</td></tr>';
-        foreach ($result as $id => $price)
+        foreach ($sorted as $id => $price)
         {
             $p = ($price['prix'] < 1) ? $price['prix'] * $weight : $price['prix'];
             $ret .= '<tr class="oddeven"><td>'.$price['label'].'</td><td>'.$p.'</td>';
