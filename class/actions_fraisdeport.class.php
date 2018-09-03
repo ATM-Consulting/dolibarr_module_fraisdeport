@@ -71,7 +71,7 @@ class ActionsFraisdeport
         
         if (in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context'])) || in_array('invoicecard',explode(':',$parameters['context'])))
         {
-            if ($object->statut == '0') print '<a href="#" class="butAction" id="transport">Calcul des frais de transport</a>';
+            print '<a href="#" class="butAction" id="transport">Calcul des frais de transport</a>';
             
             $weight = $this->getCmdWeight($object);
             
@@ -109,6 +109,7 @@ class ActionsFraisdeport
                                 ,pays:<?php echo empty($country) ? 0 : $country ?>
                                 ,dpt:<?php echo empty($dpt) ? 0 : $dpt ?>
                                 ,obj_id:<?php echo $object->id ?>
+                                ,show_apply: <?php echo empty($object->statut) ? 1 : 0 ?>
                             }
                             ,method:"post"
                             ,dataType:'json'

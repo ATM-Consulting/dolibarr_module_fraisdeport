@@ -9,6 +9,7 @@ $weight = GETPOST('poids');
 $country = GETPOST('pays');
 $dpt = GETPOST('dpt');
 $obj_id = GETPOST('obj_id');
+$show_apply = GETPOST('show_apply');
 
 if (empty($weight))
 {
@@ -34,7 +35,7 @@ switch($put){
 
 function checkprice($weight, $country, $dpt)
 {
-    global $db, $langs, $obj_id, $conf;
+    global $db, $langs, $obj_id, $conf, $show_apply;
     
     if (!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE))
     {
@@ -134,15 +135,16 @@ function checkprice($weight, $country, $dpt)
         $sorted = array();
         foreach ($res as $k => $v) $sorted[$k] = $result[$k];
         
-        //var_dump($res, $sorted);
-        
         $ret.='<table width="100%" class="liste">';
         $ret .= '<tr class="liste_titre"><td>Transporteur</td><td>Cout de l\'envoi</td><td align="center">Appliquer</td></tr>';
         foreach ($sorted as $id => $price)
         {
             $p = ($price['prix'] < 1) ? $price['prix'] * $weight : $price['prix'];
             $ret .= '<tr class="oddeven"><td>'.$price['label'].'</td><td>'.$p.'</td>';
-            if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$p.'">'.$langs->trans('Apply').'</a></td>';
+            if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) {
+                if ($show_apply) $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$p.'">'.$langs->trans('Apply').'</a></td>';
+                else $ret .= '<td align="center">le document n\'est pas en brouillon</td>';
+            }
             else $ret .= '<td align="center">service de transport à configurer</td>';
             $ret .= '</tr>';
         }
