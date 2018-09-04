@@ -65,7 +65,7 @@ if ($action == "update")
         if (empty($line_zip)) $line_zip = 0;
         foreach ($line_prices as $id_palier => $prix)
         {
-            $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$id_palier." AND fk_pays = ".$fk_pays." AND departement = ".$state_code." AND zipcode = ".$line_zip;
+            $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$id_palier." AND fk_pays = ".$fk_pays." AND departement = '".$state_code."' AND zipcode = ".$line_zip;
             $res = $db->query($sql);
             
             if($prix !== ''){
@@ -81,6 +81,7 @@ if ($action == "update")
                     {
                         $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
                         $db->query($sql);
+                        
                     }
                 }
             }
@@ -91,7 +92,7 @@ if ($action == "update")
                     if(!$db->num_rows($res))
                     {
                         $prix = 0;
-                        $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
+                        $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',0, 1)";
                         $db->query($sql);
                     }
                 }
@@ -234,7 +235,7 @@ if ($action == 'confirmdelligne' && $confirm == "yes")
     $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paliers_transporteurs as p ON p.rowid = t.fk_palier";
     $sql.= " WHERE p.fk_trans=".$fk_trans;
     $sql.= " AND t.fk_pays=".$fk_pays;
-    $sql.= " AND t.departement=".$departement;
+    $sql.= " AND t.departement='".$departement."'";
     $sql.= " AND t.zipcode=".$zipcode;
     
     $tarifs = $PDOdb->ExecuteAsArray($sql);
