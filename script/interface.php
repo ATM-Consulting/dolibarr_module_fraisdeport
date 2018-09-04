@@ -80,7 +80,7 @@ function checkprice($weight, $country, $dpt)
             $sql.= " WHERE p.poids > ".$weight;
             $sql.= " AND p.fk_trans = '".$tid."'";
             $sql.= " AND t.fk_pays = ".$country;
-            if($country = 1) $sql.= " AND t.departement = ".$dpt;
+            if($country == 1) $sql.= " AND t.departement = ".$dpt;
             $sql.= " ORDER BY poids ASC LIMIT 1";
             $resql2 = $db->query($sql);
             if($resql2)
@@ -100,7 +100,7 @@ function checkprice($weight, $country, $dpt)
                     $sql.= " WHERE p.poids < ".$weight;
                     $sql.= " AND p.fk_trans = '".$tid."'";
                     $sql.= " AND t.fk_pays = ".$country;
-                    if($country = 1) $sql.= " AND t.departement = ".$dpt;
+                    if($country == 1) $sql.= " AND t.departement = ".$dpt;
                     $sql.= " ORDER BY poids DESC LIMIT 1";
                     $resql3 = $db->query($sql);
                     if($resql3)
