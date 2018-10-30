@@ -1,2 +1,23 @@
-ModuleXXXXXXName = Name
+Module104150Name = Automatic postal charges
 ModuleXXXXXXDesc = Descripion
+FraisDePortSetup=Postal charges module administration
+EurosPallier=Level in euros
+TarifFraisDePort=Postal charges amount
+SaveFDP=Save postal charges
+FDPSaved=Postal charges saved !
+IDServiceSaved=This service will be used for postal charges management !
+IDServiceNotSaved=No service found...
+PortTaxAdded=Postal charge added
+UseWeight=Manage postal charges according to the weight
+RegisterSuccess=Parameters saved with success
+
+
+fraisdeport_label_service_to_use=Service existant reflettant les frais de port
+
+FraisDePort=Postal charges to apply
+ShipmentMode=Shipping method
+fraisdeport_confirm_delete=Confirm deletion ?
+
+UseWeightInfo=<b>Be careful</b><br />If price levels and weight levels are defined, by default postal charges module will use highest amount
+DelAmountWeightInport=Delete weight before import
+DelAmountBefortInport=Delete amounts before import
