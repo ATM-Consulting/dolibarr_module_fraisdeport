@@ -80,6 +80,7 @@ class ActionsFraisdeport
 //             var_dump($dpt);
             $ret  = $object->liste_contact(-1, 'external', 1, 'SHIPPING');
             if($ret > 0 && !empty($ret)) {
+		require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
                 $contact = new Contact($db);
                 $r = $contact->fetch($ret[0]);
                 $country = $contact->country_id;
