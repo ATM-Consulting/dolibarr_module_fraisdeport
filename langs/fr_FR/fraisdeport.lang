@@ -10,7 +10,8 @@ IDServiceNotSaved=Aucun service trouvé...
 PortTaxAdded=Frais de port ajouté
 UseWeight=Gérer les frais de port en fonction du poids
 RegisterSuccess=Paramètres enregistrés avec succès
-
+FRAIS_DE_PORT_USE_TRANSPORT=Utiliser les grilles tarifaires transporteurs
+ImportTarifTransport=Import tarifs transport
 
 fraisdeport_label_service_to_use=Service existant reflettant les frais de port
 
