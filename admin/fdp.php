@@ -9,30 +9,30 @@
     $langs->load("deliveries");
 	$langs->load("fraisdeport@fraisdeport");
 	
-	$type = GETPOST('type');
+	$type = GETPOST('type','alpha');
 	if(empty($type)) $type = 'AMOUNT';
 	
-	$action = GETPOST('action');
+	$action = GETPOST('action','alpha');
 	$fdp = new TFraisDePort;
 	$PDOdb=new TPDOdb;
 	
 	switch ($action) {
 		case 'save':
 			
-			if(GETPOST('bt_cancel')!='') {
-				header('location:'.dol_buildpath('/fraisdeport/admin/fdp.php?type='.GETPOST('type'),1) );
+			if(GETPOST('bt_cancel','none')!='') {
+				header('location:'.dol_buildpath('/fraisdeport/admin/fdp.php?type='.GETPOST('type','none'),1) );
 			}
 			else{
-				$fdp->load($PDOdb, GETPOST('id'));
+				$fdp->load($PDOdb, GETPOST('id','int'));
 				$fdp->set_values($_POST);
 				$fdp->save($PDOdb);		
 				
 				setEventMessage($langs->trans('FraisDePortSaved'));
-				header('location:'.dol_buildpath('/fraisdeport/admin/fdp.php?type='.GETPOST('type').'&TListTBS[lPrice][orderBy][date_maj]=DESC',1) );
+				header('location:'.dol_buildpath('/fraisdeport/admin/fdp.php?type='.GETPOST('type','none').'&TListTBS[lPrice][orderBy][date_maj]=DESC',1) );
 			}
 		
 		case 'edit':
-			$fdp->load($PDOdb, GETPOST('id'));
+			$fdp->load($PDOdb, GETPOST('id','int'));
 			fiche($fdp, $type, 'edit');
 			
 			break;
@@ -42,7 +42,7 @@
 			
 			break;
 		case 'delete':
-			$fdp->load($PDOdb, GETPOST('id'));
+			$fdp->load($PDOdb, GETPOST('id','int'));
 			$fdp->delete($PDOdb);
 			
 			liste($type);

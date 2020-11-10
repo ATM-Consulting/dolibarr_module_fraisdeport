@@ -87,7 +87,7 @@ class ActionsFraisdeport
                 $dpt = $contact->state_code;
             }
             
-            if(GETPOST('greg')) var_dump($weight);
+            if(GETPOST('greg','none')) var_dump($weight);
             ?>
             
             <script>
