@@ -28,18 +28,18 @@ if (! $user->admin) {
 $action = GETPOST('action', 'alpha');
 $newPalier = GETPOST('newPalier', 'array');
 $paliers = GETPOST('paliers', 'array');
-$fk_palier = GETPOST('fk_palier');
+$fk_palier = GETPOST('fk_palier','int');
 $fk_trans = GETPOST('transport', 'int');
 $fk_pays = GETPOST('pays', 'int');
-$departement = GETPOST('dpt');
-$zipcode = GETPOST('zip');
+$departement = GETPOST('dpt','alpha');
+$zipcode = GETPOST('zip','alpha');
 $pricestoUpdate = GETPOST('pricesToUpdate', 'array');
 $prices = GETPOST('prices', 'array');
 $line_state = GETPOST('line_state', 'int');
-$line_zip = GETPOST('line_zip');
+$line_zip = GETPOST('line_zip','none');
 $line_prices = GETPOST('line_prices', 'array');
-$addline = GETPOST('addline');
-$confirm = GETPOST('confirm');
+$addline = GETPOST('addline','none');
+$confirm = GETPOST('confirm','none');
 
 /**
  * Actions
