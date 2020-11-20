@@ -33,11 +33,8 @@
 /**
  * Trigger class
  */
-class InterfaceFraisdeport
+class InterfaceFraisdeport extends DolibarrTriggers
 {
-
-    private $db;
-
     /**
      * Constructor
      *
@@ -111,68 +108,68 @@ class InterfaceFraisdeport
      * 	@param		conf		$conf		Object conf
      * 	@return		int						<0 if KO, 0 if no triggered ran, >0 if OK
      */
-    public function run_trigger($action, $object, $user, $langs, $conf)
+    public function runTrigger($action, $object, $user, $langs, $conf)
     {
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
         if ($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') {
-        	
+
 			global $db,$conf;
 
 			$langs->load('fraisdeport@fraisdeport');
-			
+
 			$object->fetch_optionals($object->id);
 			if(empty($object->client) && !empty($object->thirdparty))$object->client = &$object->thirdparty;
 			/*echo "<pre>";
 			print_r($object);
 			echo "</pre>";*/
-				
+
 			dol_include_once('core/lib/admin.lib.php');
-			
+
 			define('INC_FROM_DOLIBARR',true);
-			dol_include_once('/fraisdeport/config.php');		
+			dol_include_once('/fraisdeport/config.php');
 			dol_include_once('/fraisdeport/class/fraisdeport.class.php');
 			$PDOdb=new TPDOdb;
 			// On récupère les frais de port définis dans la configuration du module
-			
+
             $fdpAlreadyInDoc = TFraisDePort::alreadyAdded( $object );
-			
+
 			$fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
-			
+
 			if(!$fdpAlreadyInDoc && !empty($fk_product) && $object->array_options['options_use_frais_de_port'] === 'Oui') {
-			    dol_include_once('/product/class/product.class.php','Product');
-                $fdp_used_montant = TFraisDePort::getFDP($PDOdb, 'AMOUNT', $object->total_ht);
-				
-                $fdp_used_weight = 0;
-                if(!empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
-                	$total_weight = TFraisDePort::getTotalWeight($object);
-			$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->thirdparty->zip);
-		}
-               
+			dol_include_once('/product/class/product.class.php','Product');
+			$fdp_used_montant = TFraisDePort::getFDP($PDOdb, 'AMOUNT', $object->total_ht);
+
+			$fdp_used_weight = 0;
+			if(!empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
+				$total_weight = TFraisDePort::getTotalWeight($object);
+				$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->thirdparty->zip);
+			}
+
                 $fdp_used = max($fdp_used_weight, $fdp_used_montant );
-             	
+
 				$p = new Product($db);
 				$p->fetch($fk_product);
-				
+
 				$object->statut = 0;
-				
+
 				$used_tva = ($object->client->tva_assuj == 1) ? $p->tva_tx : 0;
-				
+
 				if($object->element == 'commande') {
 					$object->addline("Frais de port", $fdp_used, 1, $used_tva, 0, 0, $fk_product, 0, 0, 0, 'HT', 0, '', '', $p->type);
 				} else if($object->element == 'propal') {
 					$object->addline("Frais de port", $fdp_used, 1, $used_tva, 0, 0, $fk_product, 0, 'HT', 0, 0, $p->type);
 				}
-                
+
                 setEventMessage($langs->trans('PortTaxAdded').' : '.price($fdp_used).$conf->currency.' '.$langs->trans('VAT').' '.$used_tva.'%' );
-				
+
 				$object->fetch($object->id);
 				$object->statut = 1; // TODO AA à quoi ça sert... Puisqu'il n'ya pas de save... :-|
-			
-				
+
+
 			}
-			
+
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
