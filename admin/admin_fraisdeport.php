@@ -60,7 +60,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -78,7 +78,7 @@ if (preg_match('/del_(.*)/',$action,$reg))
 /*
  * View
  */
- 
+
 $page_name = "FraisDePortSetup";
 llxHeader('', $langs->trans($page_name));
 
@@ -141,7 +141,7 @@ print '<script type="text/javascript">
 	$(function() {
 		/* do refresh to show or hide weight tab */
 		$("#set_FRAIS_DE_PORT_USE_WEIGHT, #del_FRAIS_DE_PORT_USE_WEIGHT, #set_FRAIS_DE_PORT_USE_TRANSPORT, #del_FRAIS_DE_PORT_USE_TRANSPORT").click(function() {
-			window.location.href=window.location.href;
+			setTimeout(function () { window.location.href=window.location.href; }, 0);
 		});
 	});
 </script>';

@@ -2,14 +2,14 @@
 require("../config.php");
 dol_include_once('/product/class/product.class.php');
 
-$get = GETPOST('get');
-$put = GETPOST('put');
+$get = GETPOST('get','none');
+$put = GETPOST('put','none');
 
-$weight = GETPOST('poids');
-$country = GETPOST('pays');
-$dpt = GETPOST('dpt');
-$obj_id = GETPOST('obj_id');
-$show_apply = GETPOST('show_apply');
+$weight = GETPOST('poids','int');
+$country = GETPOST('pays','alpha');
+$dpt = GETPOST('dpt','int');
+$obj_id = GETPOST('obj_id','int');
+$show_apply = GETPOST('show_apply','none');
 
 if (empty($weight))
 {
