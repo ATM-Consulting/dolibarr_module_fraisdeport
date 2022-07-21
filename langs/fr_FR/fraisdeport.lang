@@ -1,24 +1,30 @@
 Module104150Name = Frais de Port Automatiques
-ModuleXXXXXXDesc = Descripion
-FraisDePortSetup=Administration du module Frais de Port
-EurosPallier=Pallier en euros
-TarifFraisDePort=Montant des frais de port
-SaveFDP=Enregistrer les frais de port
-FDPSaved=Frais de port enregistrés avec succès !
-IDServiceSaved=Ce service sera utilisé pour la gestion des frais de port !
-IDServiceNotSaved=Aucun service trouvé...
-PortTaxAdded=Frais de port ajouté
-UseWeight=Gérer les frais de port en fonction du poids
-RegisterSuccess=Paramètres enregistrés avec succès
-FRAIS_DE_PORT_USE_TRANSPORT=Utiliser les grilles tarifaires transporteurs
-ImportTarifTransport=Import tarifs transport
+Module10415Desc = Descripion
 
-fraisdeport_label_service_to_use=Service existant reflétant les frais de port
+DelAmountBefortInport = Supprimer les montants avant import
+DelAmountWeightInport = Supprimer les poids avant import
 
-FraisDePort=Frais de port à appliquer
-ShipmentMode=Méthode d'expédition
-fraisdeport_confirm_delete=Confirmez-vous la suppression ?
+EurosPallier = Pallier en euros
 
-UseWeightInfo=<b>Attention</b><br />si des paliers de prix sont définis ainsi que des paliers par poids, et que votre propal et/ou commande tombe dans un palier de chaque, le comportement par défaut sera d'ajouter les frais les plus élevés
-DelAmountWeightInport=Supprimer les poids avant import
-DelAmountBefortInport=Supprimer les montants avant import
+FDPSaved = Frais de port enregistrés avec succès !
+FraisDePort = Frais de port à appliquer
+FraisDePortSetup = Administration du module Frais de Port
+fraisdeport_confirm_delete = Confirmez-vous la suppression ?
+fraisdeport_label_service_to_use = Service existant reflétant les frais de port
+FRAIS_DE_PORT_USE_TRANSPORT = Utiliser les grilles tarifaires transporteurs
+
+IDServiceNotSaved = Aucun service trouvé...
+IDServiceSaved = Ce service sera utilisé pour la gestion des frais de port !
+ImportTarifTransport = Import tarifs transport
+
+PortTaxAdded = Frais de port ajouté
+
+RegisterSuccess = Paramètres enregistrés avec succès
+
+SaveFDP = Enregistrer les frais de port
+ShipmentMode = Méthode d'expédition
+
+TarifFraisDePort = Montant des frais de port
+
+UseWeight = Gérer les frais de port en fonction du poids
+UseWeightInfo = <b>Attention</b><br />si des paliers de prix sont définis ainsi que des paliers par poids, et que votre propal et/ou commande tombe dans un palier de chaque, le comportement par défaut sera d'ajouter les frais les plus élevés
