@@ -41,6 +41,8 @@ $line_prices = GETPOST('line_prices', 'array');
 $addline = GETPOST('addline','none');
 $confirm = GETPOST('confirm','none');
 
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 /**
  * Actions
  */
@@ -61,13 +63,13 @@ if ($action == "update")
             $obj = $db->fetch_object($res);
             $state_code = $obj->code_departement;
         }
-        
+
         if (empty($line_zip)) $line_zip = 0;
         foreach ($line_prices as $id_palier => $prix)
         {
             $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$id_palier." AND fk_pays = ".$fk_pays." AND departement = '".$state_code."' AND zipcode = ".$line_zip;
             $res = $db->query($sql);
-            
+
             if($prix !== ''){
                 if($res)
                 {
@@ -81,11 +83,11 @@ if ($action == "update")
                     {
                         $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (fk_palier, fk_pays, departement, zipcode,tarif, active) VALUES (".$id_palier.",".$fk_pays.",'".$state_code."','".$line_zip."',".(float)$prix.", 1)";
                         $db->query($sql);
-                        
+
                     }
                 }
             }
-            else 
+            else
             {
                 if($res)
                 {
@@ -97,12 +99,12 @@ if ($action == "update")
                     }
                 }
             }
-            
-            
+
+
         }
     }
 //     }
-    
+
     foreach ($newPalier as $id => $palier)
     {
         if ($palier !== ''){
@@ -111,7 +113,7 @@ if ($action == "update")
             $pays = $tmp[1];
             $error = 0;
             $db->begin();
-            
+
             $sql = "SELECT p.rowid FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs as p";
             $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t on t.fk_palier = p.rowid";
             $sql.= " WHERE p.fk_trans = ". $trans;
@@ -119,19 +121,19 @@ if ($action == "update")
             $sql.= " AND p.poids = ".$palier;
             $res = $db->query($sql);
             if ($res){
-                
+
                 $num = $db->num_rows($res);
                 if($num){
-                    
+
                     $obj = $db->query($sql);
                     $fk_palier = $obj->rowid;
                 } else {
-                    
+
                     $sqlInsert = "INSERT INTO ".MAIN_DB_PREFIX."c_paliers_transporteurs (fk_trans, poids, active) VALUES ('".$trans."','".$palier."', 1)";
                     $resinsert = $db->query($sqlInsert);
-                    
+
                     if(!$resinsert){
-                        
+
                         $db->rollback();
                         print "erreur ";
                         print $db->lasterror;
@@ -141,11 +143,11 @@ if ($action == "update")
                         $fk_palier = $db->last_insert_id(MAIN_DB_PREFIX.'c_paliers_transporteurs');
                     }
                 }
-                
+
             }
-            
+
             if(!$error){
-                
+
                 $sqlzone = "SELECT DISTINCT t.departement, t.zipcode FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t";
                 $sqlzone.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paliers_transporteurs as p ON p.rowid = t.fk_palier";
                 $sqlzone.= " WHERE t.fk_pays = " . $pays;
@@ -162,9 +164,9 @@ if ($action == "update")
             }
             $db->commit();
         }
-        
+
     }
-    
+
     if(!empty($paliers))
     {
         $sql = "SELECT rowid, poids FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE rowid IN ('".implode("','", array_keys($paliers[$fk_trans]))."')";
@@ -177,7 +179,7 @@ if ($action == "update")
                     $toUpdate[] = $obj->rowid;
             }
         }
-        
+
         foreach ($paliers[$fk_trans] as $palid => $val)
         {
             if(in_array($palid, $toUpdate))
@@ -189,7 +191,7 @@ if ($action == "update")
             }
         }
     }
-    
+
     if(!empty($prices))
     {
 //         var_dump($pricestoUpdate);
@@ -202,30 +204,30 @@ if ($action == "update")
             $res = $db->query($sql);
         }
     }
-    
-    
+
+
 }
 
 if ($action == "confirmdelpalier" && $confirm == "yes")
 {
-    
+
 //     var_dump($fk_palier);
     if(!empty($fk_palier)){
         $error = 0;
         $db->begin();
-        
+
         $sql = "DELETE FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier = ".$fk_palier;
         $res = $db->query($sql);
         if(!$res) $error++;
-        
+
         $sql = "DELETE FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE rowid = ".$fk_palier;
         $res = $db->query($sql);
         if(!$res) $error++;
-        
+
         if($error) $db->rollback();
         else $db->commit();
     }
-    
+
 }
 
 // delligne&transport='.$tid.'&pays='.$k.'&dpt='.$dpt.'&zip='.$code.'
@@ -237,14 +239,14 @@ if ($action == 'confirmdelligne' && $confirm == "yes")
     $sql.= " AND t.fk_pays=".$fk_pays;
     $sql.= " AND t.departement='".$departement."'";
     $sql.= " AND t.zipcode=".$zipcode;
-    
+
     $tarifs = $PDOdb->ExecuteAsArray($sql);
     $Trowid =array();
     foreach ($tarifs as $result)
     {
         $Trowid[] = $result->rowid;
     }
-    
+
     $sql = "DELETE FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs";
     $sql.= " WHERE rowid IN ('".implode("','",$Trowid)."')";
     $db->query($sql);
@@ -253,8 +255,8 @@ if ($action == 'confirmdelligne' && $confirm == "yes")
 $page_name = "Grilles transport";
 llxHeader('', $langs->trans($page_name));
 if($action == "delpalier")
-{ 
-    print $form->formconfirm($_SERVER["PHP_SELF"] . "?fk_palier=".$fk_palier, 'Suppression de la tranche', "Souhaitez-vous réellement supprimer le palier de ".(int)$poids." kg ?", 'confirmdelpalier', '', 0, 1);
+{
+    print $form->formconfirm($_SERVER["PHP_SELF"] . "?fk_palier=".$fk_palier."&token=".$newToken, 'Suppression de la tranche', "Souhaitez-vous réellement supprimer le palier de ".(int)$poids." kg ?", 'confirmdelpalier', '', 0, 1);
 }
 if($action == "delligne")
 {
@@ -264,9 +266,9 @@ if($action == "delligne")
 // Subheader
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     . $langs->trans("BackToModuleList") . '</a>';
-    
+
 print_fiche_titre($langs->trans($page_name), $linkback);
-    
+
 // Configuration header
 $head = fraisdeportAdminPrepareHead();
 dol_fiche_head(
@@ -300,7 +302,7 @@ if($res)
         parent.html('<input size="6" type="text" name="'+name+'" value="'+val+'">');
         parent.find('input').focus();
     });
-    
+
     $(document).on('click', '.add', function(e){
         e.preventDefault();
         $(this).prev().attr('checked', true).closest('form').submit();
@@ -310,17 +312,28 @@ if($res)
 
 if(count($TTransport))
 {
+
+	if (!isset($TTranches)){
+		$TTranches = array(
+			'poids'=> array(),
+			'pays'=> array()
+		);
+	}
     foreach ($TTransport as $tid => $label)
     {
+
+		// pour chaque tranche récupérer les tarifs correspondants par pays/dpt/ville
+		$TTarifs = array();
+
         // récupérer toutes les tranches de poids du transporteur
         $sql = "SELECT DISTINCT p.rowid, t.fk_pays, p.poids FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs as p";
         $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_tarifs_transporteurs as t ON t.fk_palier = p.rowid";
         $sql.= " WHERE p.fk_trans = ".$tid." ORDER BY t.fk_pays, p.poids ASC";
-//          var_dump($sql);
+          //var_dump($sql);
         $res = $db->query($sql);
         if($res)
         {
-            $TTranches = array();
+
             while($obj = $db->fetch_object($res))
             {
                 $TTranches['poids'][$obj->rowid] = $obj->poids;
@@ -328,9 +341,7 @@ if(count($TTransport))
             }
 //             var_dump($TTranches); exit;
         }
-        // pour chaque tranche récupérer les tarifs correspondants par pays/dpt/ville
-        $TTarifs = array();
-        
+
         $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_tarifs_transporteurs WHERE fk_palier IN ('".implode("','", array_keys($TTranches['poids']))."') ORDER BY fk_pays, departement, zipcode ASC";
 //          var_dump($sql);
         $res = $db->query($sql);
@@ -343,25 +354,28 @@ if(count($TTransport))
 
         }
 //         var_dump($TTarifs); exit;
+		//var_dump($TTranches); exit;
+       // if(count($TTranches))
+        //{
 
-        if(count($TTranches))
-        {
-            
+
+
             foreach ($TTranches['pays'] as $k => $country)
             {
                 print_titre($label.' - '.$TCountry[$k]);
 //                 var_dump($TTranches['pays'][$k], $TTranches['poids']);//exit;
                 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
                 print '<input type="hidden" name="action" value="update">';
+				print '<input type="hidden" name="token" value="'.$newToken.'">';
                 print '<input type="hidden" name="transport" value="'.$tid.'">';
                 print '<input type="hidden" name="pays" value="'.$k.'">';
             ?>
-            
+
             <table class="noborder" width="100%">
                 <!-- entête -->
                 <tr class="liste_titre">
-                <?php 
-                
+                <?php
+
                 ?>
             	<td align="left">Pays</td>
                 <td align="center">Département</td>
@@ -376,31 +390,31 @@ if(count($TTransport))
                         print '<td align="center">Timbre</td>';
                     }
                     else {
-                        
+
                         if($first) {
                             print '<td align="center">';
                             print 'de 0  à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg ';
-                            print '<br><a href="?action=delpalier&fk_palier='.$seuil.'&poids='.$TTranches['poids'][$seuil].'">'.img_delete('supprimer le palier').'</a></td>';
+                            print '<br><a href="?action=delpalier&fk_palier='.$seuil.'&token='.$newToken.'&poids='.$TTranches['poids'][$seuil].'">'.img_delete('supprimer le palier').'</a></td>';
                             $first = false;
                         } elseif ($i < ($num) ) {
                             print '<td align="center">de '.$TTranches['poids'][$country[$i-1]].' à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg ';
-                            print '<br><a href="?action=delpalier&fk_palier='.$seuil.'&poids='.$TTranches['poids'][$seuil].'">'.img_delete('supprimer le palier').'</a></td>';
+                            print '<br><a href="?action=delpalier&fk_palier='.$seuil.'&token='.$newToken.'&poids='.$TTranches['poids'][$seuil].'">'.img_delete('supprimer le palier').'</a></td>';
                         }
-                        
+
                     }
-                    
+
                     $i++;
                 }
                 print '<td>';
                 print '<input type="text" name="newPalier['.$tid.'-'.$k.']">';
                 print '</td>';
                 print '</tr>';
-                
+
         	    foreach ($TTarifs[$k] as $dpt => $zip)
             	{
             	   foreach ($zip as $code => $prices)
             	   {
-            	       
+
             	       print '<tr>';
             	       print '<td align="left">'.$TCountry[$k].'</td>';
             	       print '<td align="center">'.$dpt.'</td>';
@@ -411,12 +425,12 @@ if(count($TTransport))
             	           //print '<input class="prixpalier" size="6" type="text" name="prices['.$TTarifsId[$k][$dpt][$code][$tr].']" value="'.(float)$prices[$tr].'"> €</td>';
             	           print '<span class="prixpalier" data-name="prices['.$TTarifsId[$k][$dpt][$code][$tr].']">'.(float)$prices[$tr].'</span>';
             	       }
-            	       print '<td align="center"><a href="?action=delligne&transport='.$tid.'&pays='.$k.'&dpt='.$dpt.'&zip='.((empty($code)) ? 0 : $code).'">'.img_delete('supprimer la ligne').'</a></td>';
+            	       print '<td align="center"><a href="?action=delligne&transport='.$tid.'&pays='.$k.'&dpt='.$dpt.'&token='.$newToken.'&zip='.((empty($code)) ? 0 : $code).'">'.img_delete('supprimer la ligne').'</a></td>';
             	       print '</tr>';
             	   }
             	}
             	print '<tr><td colspan="'.($i+4).'">Ajouter une ligne</td><tr><tr class="liste_titre">';
-            	
+
             	?>
 <!--             	<td align="left">Pays</td> -->
                 <td colspan="2" align="center">Département</td>
@@ -431,7 +445,7 @@ if(count($TTransport))
                         print '<td align="center">Timbre</td>';
                     }
                     else {
-                        
+
                         if($first) {
                             print '<td align="center">';
                             print 'de 0  à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg</td>';
@@ -439,9 +453,9 @@ if(count($TTransport))
                         } elseif ($i < ($num) ) {
                             print '<td align="center">de '.$TTranches['poids'][$country[$i-1]].' à <br><input type="text" name="paliers['.$tid.']['.$seuil.']" size="5" value="'. $TTranches['poids'][$seuil] . '"> kg</td>';
                         }
-                        
+
                     }
-                    
+
                     $i++;
                 }
                 print '<td>';
@@ -465,9 +479,9 @@ if(count($TTransport))
             print '</div>';
             print '</form>';
             }
-        }
+       // }
 
     }
-    
+
 }
 

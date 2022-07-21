@@ -53,7 +53,7 @@ class modFraisdeport extends DolibarrModules
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
-		$this->family = "ATM";
+		$this->family = "ATM Consulting";
 		// Module label (no space allowed)
 		// used if translation string 'ModuleXXXName' not found
 		// (where XXX is value of numeric property 'numero' of module)
@@ -63,7 +63,7 @@ class modFraisdeport extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Frais de port calculés en fonction du prix de la commande";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.2.1';
+		$this->version = '1.2.2';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
