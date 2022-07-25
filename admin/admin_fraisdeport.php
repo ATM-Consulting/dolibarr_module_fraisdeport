@@ -34,6 +34,8 @@ dol_include_once('core/lib/admin.lib.php');
 // Translations
 $langs->load("fraisdeport@fraisdeport");
 
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 // Access control
 if (! $user->admin) {
     accessforbidden();
@@ -114,7 +116,7 @@ print '<td>'.$langs->trans("fraisdeport_label_service_to_use").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FRAIS_DE_PORT_ID_SERVICE_TO_USE">';
 $form->select_produits($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE, 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', 1, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1);
 print '&nbsp;<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
