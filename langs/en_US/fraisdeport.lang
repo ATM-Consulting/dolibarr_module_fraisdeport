@@ -1,5 +1,5 @@
 Module104150Name = Automatic postal charges
-Module104150Desc = Descripion
+Module104150Desc = Automatic postal charges
 
 DelAmountBefortInport = Delete amounts before import
 DelAmountWeightInport = Delete weight before import

@@ -1,5 +1,5 @@
 Module104150Name = Frais de Port Automatiques
-Module10415Desc = Descripion
+Module104150Desc = Permet de gérer des frais de port
 
 DelAmountBefortInport = Supprimer les montants avant import
 DelAmountWeightInport = Supprimer les poids avant import
