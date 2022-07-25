@@ -8,4 +8,6 @@ ___
 
 # RELEASE 1.2
 
+- FIX : Icon - *1.2.3* - 25/07/2022
+
 Initialise le système de release 

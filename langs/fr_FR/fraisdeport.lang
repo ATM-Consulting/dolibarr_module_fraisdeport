@@ -22,3 +22,4 @@ fraisdeport_confirm_delete=Confirmez-vous la suppression ?
 UseWeightInfo=<b>Attention</b><br />si des paliers de prix sont définis ainsi que des paliers par poids, et que votre propal et/ou commande tombe dans un palier de chaque, le comportement par défaut sera d'ajouter les frais les plus élevés
 DelAmountWeightInport=Supprimer les poids avant import
 DelAmountBefortInport=Supprimer les montants avant import
+FraisDePortImport = Import de frais de port

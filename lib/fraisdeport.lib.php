@@ -40,21 +40,21 @@ function fraisdeportAdminPrepareHead()
     $head[$h][1] = $langs->trans("Price");
     $head[$h][2] = 'AMOUNT';
     $h++;
-	
+
 	if(!empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
 	    $head[$h][0] = dol_buildpath("/fraisdeport/admin/fdp.php?type=WEIGHT", 1);
 	    $head[$h][1] = $langs->trans("Weight");
 	    $head[$h][2] = 'WEIGHT';
 	    $h++;
-		
+
 	}
-	
+
 	if(!empty($conf->global->FRAIS_DE_PORT_USE_TRANSPORT)) {
 	    $head[$h][0] = dol_buildpath("/fraisdeport/admin/import_tarifs.php", 1);
 	    $head[$h][1] = $langs->trans("ImportTarifTransport");
 	    $head[$h][2] = 'Transport';
 	    $h++;
-	    
+
 	    $head[$h][0] = dol_buildpath("/fraisdeport/admin/grilles.php", 1);
 	    $head[$h][1] = $langs->trans("Grilles");
 	    $head[$h][2] = 'GrillesTransport';
@@ -65,10 +65,12 @@ function fraisdeportAdminPrepareHead()
     $head[$h][1] = $langs->trans("Import");
     $head[$h][2] = 'import';
     $h++;
-    $head[$h][0] = dol_buildpath("/fraisdeport/admin/about.php", 1);
-    $head[$h][1] = $langs->trans("About");
-    $head[$h][2] = 'about';
-    $h++;
+
+// la page n'a jamais été faite, vu que le module va subir une refonte elle sera refaite à ce moment là
+//    $head[$h][0] = dol_buildpath("/fraisdeport/admin/about.php", 1);
+//    $head[$h][1] = $langs->trans("About");
+//    $head[$h][2] = 'about';
+//    $h++;
 
     // Show more tabs from modules
     // Entries must be declared in modules descriptor with line

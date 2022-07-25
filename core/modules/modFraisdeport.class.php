@@ -63,7 +63,7 @@ class modFraisdeport extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Frais de port calculés en fonction du prix de la commande";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.2.1';
+		$this->version = '1.2.3';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -75,7 +75,7 @@ class modFraisdeport extends DolibarrModules
 		// use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png
 		// use this->picto='pictovalue@module'
-		$this->picto = 'fraisdeport@fraisdeport'; // mypicto@mymodule
+		$this->picto = 'fraisdeport.svg@fraisdeport'; // mypicto@mymodule
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
 		// for default path (eg: /mymodule/core/xxxxx) (0=disable, 1=enable)
 		// for specific path of parts (eg: /mymodule/core/modules/barcode)
