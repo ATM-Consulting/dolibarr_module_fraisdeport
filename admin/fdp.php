@@ -9,6 +9,8 @@
     $langs->load("deliveries");
 	$langs->load("fraisdeport@fraisdeport");
 	
+	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 	$type = GETPOST('type','alpha');
 	if(empty($type)) $type = 'AMOUNT';
 	
@@ -60,11 +62,11 @@ function fiche(&$fdp, $type, $mode) {
 	llxHeader('', $langs->trans($page_name));	
 	$linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 	    . $langs->trans("BackToModuleList") . '</a>';
-	print_fiche_titre($langs->trans($page_name), $linkback);
+	print load_fiche_titre($langs->trans($page_name), $linkback, 'object_fraisdeport.svg@fraisdeport');
 	
 	// Configuration header
 	$head = fraisdeportAdminPrepareHead();
-	dol_fiche_head(  $head,  $type,  $page_name,   0,   "fraisdeport@fraisdeport" );	
+	print dol_get_fiche_head(  $head,  $type,  $page_name,   0,   "fraisdeport@fraisdeport" );
 	$form = new TFormCore('auto', 'form1','post');
 	$form->Set_typeaff($mode);
 	
@@ -102,24 +104,26 @@ function fiche(&$fdp, $type, $mode) {
 	
 	$form->end();
 	
-	dol_fiche_end();
+	print dol_get_fiche_end();
 	llxFooter();
 }
 	
 function liste($type) {
 	global $conf, $langs;
+
+	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 	
 	$page_name = "FraisDePortSetup";
 	llxHeader('', $langs->trans($page_name));	
 	
 	$linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 	    . $langs->trans("BackToModuleList") . '</a>';
-	print_fiche_titre($langs->trans($page_name), $linkback);
+	print load_fiche_titre($langs->trans($page_name), $linkback, 'object_fraisdeport.svg@fraisdeport');
 	
 	// Configuration header
 	$head = fraisdeportAdminPrepareHead();
 
-	dol_fiche_head(  $head,  $type,  $page_name,   0,   "fraisdeport@fraisdeport" );	
+	print dol_get_fiche_head(  $head,  $type,  $page_name,   0,   "fraisdeport@fraisdeport" );
 	
 
 	$l=new TListviewTBS('lPrice');
@@ -137,7 +141,7 @@ function liste($type) {
 	echo $l->render($PDOdb, $sql, array(
 		'link'=>array(
 			'Id'=>'<a href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=edit&id=@val@&type='.$type,1).'">@val@</a>'
-			,'action'=>'<a href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=edit&id=@Id@&type='.$type,1).'">'.img_edit().'</a> <a onclick="if (!window.confirm(\''.$langs->trans('fraisdeport_confirm_delete').'\')) return false;" href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=delete&id=@Id@&type='.$type,1).'">'.img_delete().'</a>'		)
+			,'action'=>'<a href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=edit&id=@Id@&type='.$type.'&token='.$newToken,1).'">'.img_edit().'</a> <a onclick="if (!window.confirm(\''.$langs->trans('fraisdeport_confirm_delete').'\')) return false;" href="'.dol_buildpath('/fraisdeport/admin/fdp.php?action=delete&id=@Id@&type='.$type.'&token='.$newToken,1).'">'.img_delete().'</a>'		)
 		,'type'=>array(
 			'fdp'=>'money'
 			,'palier'=>'number'

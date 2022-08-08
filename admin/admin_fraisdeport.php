@@ -34,6 +34,8 @@ dol_include_once('core/lib/admin.lib.php');
 // Translations
 $langs->load("fraisdeport@fraisdeport");
 
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 // Access control
 if (! $user->admin) {
     accessforbidden();
@@ -85,11 +87,11 @@ llxHeader('', $langs->trans($page_name));
 // Subheader
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     . $langs->trans("BackToModuleList") . '</a>';
-print_fiche_titre($langs->trans($page_name), $linkback);
+print load_fiche_titre($langs->trans($page_name), $linkback, 'object_fraisdeport.svg@fraisdeport');
 
 // Configuration header
 $head = fraisdeportAdminPrepareHead();
-dol_fiche_head(
+print dol_get_fiche_head(
     $head,
     'settings',
     $langs->trans("Module104150Name"),
@@ -97,6 +99,8 @@ dol_fiche_head(
     "fraisdeport@fraisdeport"
 );
 
+
+print dol_get_fiche_end();
 
 $form=new Form($db);
 $var=false;
@@ -112,7 +116,7 @@ print '<td>'.$langs->trans("fraisdeport_label_service_to_use").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FRAIS_DE_PORT_ID_SERVICE_TO_USE">';
 $form->select_produits(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE) ? $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE : '', 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', 1, $conf->product->limit_size, (!empty($buyer) && !empty($buyer->price_level)) ? $buyer->price_level : '', 1, 2, '', 1);
 print '&nbsp;<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
