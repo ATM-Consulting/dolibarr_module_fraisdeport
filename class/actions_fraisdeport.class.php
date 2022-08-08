@@ -26,7 +26,7 @@ class ActionsFraisdeport
    function formObjectOptions($parameters, &$object, &$action, $hookmanager) {  
         global $conf, $langs,$db;
 		
- 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && $conf->global->FRAIS_DE_PORT_USE_WEIGHT) {
+ 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && !empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
  			    
 	        print '<script type="text/javascript">
 	                $(document).ready(function() { ';
@@ -151,7 +151,7 @@ class ActionsFraisdeport
         /*
         if(!$conf->shippableorder->enabled)
         {*/
-            define('INC_FROM_DOLIBARR',true);
+            if(!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR',true);
             dol_include_once('/fraisdeport/config.php');
             dol_include_once('/fraisdeport/class/fraisdeport.class.php');
             

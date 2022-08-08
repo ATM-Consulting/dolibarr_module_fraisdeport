@@ -135,7 +135,8 @@ class InterfaceFraisdeport extends DolibarrTriggers
 
             $fdpAlreadyInDoc = TFraisDePort::alreadyAdded( $object );
 
-			$fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
+			if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
+			else $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
 
 			if(!$fdpAlreadyInDoc && !empty($fk_product) && $object->array_options['options_use_frais_de_port'] === 'Oui') {
 			dol_include_once('/product/class/product.class.php','Product');
