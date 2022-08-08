@@ -80,7 +80,7 @@ function fraisdeportAdminPrepareHead()
     //$this->tabs = array(
     //	'entity:-tabname:Title:@mymodule:/mymodule/mypage.php?id=__ID__'
     //); // to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'mymodule');
+    complete_head_from_modules($conf, $langs, new stdClass(), $head, $h, 'mymodule');
 
     return $head;
 }

@@ -92,7 +92,8 @@ class TFraisDePort extends TObjetStd {
 		global $conf;
 		
 		$fdpAlreadyInDoc = false;
-		$fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
+		if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
+		else $fk_product = 0;
 		
 		
 		foreach($object->lines as $line) {
