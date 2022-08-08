@@ -63,7 +63,9 @@ class modFraisdeport extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Frais de port calculés en fonction du prix de la commande";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.2.3';
+
+		$this->version = '1.3.1';
+
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
