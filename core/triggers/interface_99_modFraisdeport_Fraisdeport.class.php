@@ -166,6 +166,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
                 setEventMessage($langs->trans('PortTaxAdded').' : '.price($fdp_used).$conf->currency.' '.$langs->trans('VAT').' '.$used_tva.'%' );
 
 				$object->fetch($object->id);
+				$object->fetch_thirdparty();
 				$object->statut = 1; // TODO AA à quoi ça sert... Puisqu'il n'ya pas de save... :-|
 
 
