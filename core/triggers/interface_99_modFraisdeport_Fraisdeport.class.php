@@ -113,7 +113,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
-        if ($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') {
+        if (($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') && $conf->mymodule->enabled) {
 
 			global $db,$conf;
 
