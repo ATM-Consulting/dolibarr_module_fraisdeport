@@ -1,5 +1,7 @@
 <?php
-class ActionsFraisdeport
+
+require_once __DIR__ . '/../backport/v19/core/class/commonhookactions.class.php';
+class ActionsFraisdeport extends \fraisdeport\RetroCompatCommonHookActions
 { 
      /** Overloading the doActions function : replacing the parent's function with the one below 
       *  @param      parameters  meta datas of the hook (context, etc...) 
@@ -14,7 +16,7 @@ class ActionsFraisdeport
 		
 		if (in_array('ordercard',explode(':',$parameters['context']))) 
         {
-			
+
 //             var_dump($ret, $c, $object);
             
 
@@ -26,7 +28,7 @@ class ActionsFraisdeport
    function formObjectOptions($parameters, &$object, &$action, $hookmanager) {  
         global $conf, $langs,$db;
 		
- 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && !empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
+ 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && getDolGlobalString('FRAIS_DE_PORT_USE_WEIGHT')) {
  			    
 	        print '<script type="text/javascript">
 	                $(document).ready(function() { ';

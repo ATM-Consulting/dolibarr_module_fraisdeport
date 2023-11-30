@@ -4,6 +4,8 @@ ___
 
 ## Unreleased
 
+# RELEASE 1.3
+- FIX : Compat  V19 et PHP 8.2 - 30/11/2023 - 1.3.0
 
 # RELEASE 1.2
 

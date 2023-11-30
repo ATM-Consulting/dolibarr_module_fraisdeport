@@ -55,7 +55,7 @@ if($action === 'import') {
         $TData=array();
         $f1 = fopen($_FILES['f1']['tmp_name'],'r') or die('Fichier illisible');
         $ext = substr($_FILES['f1']['name'], strrpos($_FILES['f1']['name'], '.')+1);
-        
+
         //var_dump($_FILES['f1']);
         if ($ext == "xls" || $ext == "xlsx")
         {
@@ -66,19 +66,19 @@ if($action === 'import') {
             $writer->setEnclosure("");
             $writer->save("/tmp/converted.csv");
         }
-        
+
         if(is_file("/tmp/converted.csv")) $f1 = fopen("/tmp/converted.csv",'r');
-        
+
         //var_dump($_FILES['f1'], is_file("/tmp/converted.csv")); exit;
         //unlink("/tmp/converted.csv");
         $TTransporteur = array();
         $TTranches = array();
         $i = 0;
-        
+
         // vide les paliers
         $sql = 'DELETE FROM '.MAIN_DB_PREFIX.'c_paliers_transporteurs';
         $resql = $db->query($sql);
-        
+
         while($ligne = fgetcsv($f1,4096,';', '"') ) {
             if($i > 0)
             {
@@ -108,19 +108,19 @@ if($action === 'import') {
                         }
                     }
                 }
-                
+
                 $pays = $ligne[1];
                 $dept = $ligne[2];
                 $timbre = (float) trim($ligne[43]);
                 $loc = $ligne[44];
-                
+
                 $localite = '';
                 if($pays == "FR")
                 {
                     if($loc == "AUTRES LOCALITES") $localite = "0";
                     else $localite = $dept."000";
                 }
-                
+
                 $id = $transport.'-'.$pays.'-'.$dept.'-'.(($localite !== "0") ? $localite.'-' : '').'0';
                 if (!empty($timbre)) $TData[$id] = array($transport, $pays, $dept, 0, $timbre, $localite);
                 $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."c_paliers_transporteurs WHERE fk_trans = ".$TTransporteur[$transport]." AND poids = 0";
@@ -135,7 +135,7 @@ if($action === 'import') {
                 }
                 for($j = 0; $j < 20; $j++){
                     $index = $j+3;
-                    
+
                     // créer les paliers
                     $palier = $transport.'-'.(int)$ligne[$index];
                     if(!in_array($palier, array_keys($TTranches)))
@@ -151,18 +151,18 @@ if($action === 'import') {
                             }
                         }
                     }
-                    
-                    
+
+
                     $id = $transport.'-'.$pays.'-'.$dept.'-'.(($localite !== "0") ? $localite.'-' : '').(int)$ligne[$index];
                     //var_dump((int)$ligne[$index]); exit;
                     if (empty($TData[$id])) {
                         $TData[$id] = array($transport, $pays, $dept, (int)$ligne[$index], (float)$ligne[$index+20], $localite);
                     }
-                    
+
                 }
             }
             $i++;
-            
+
         }
         if(is_file("/tmp/converted.csv")) unlink("/tmp/converted.csv");
         //var_dump($TData); exit;
@@ -193,12 +193,12 @@ if($action === 'import') {
         }
         
         foreach($TData as $k => &$data) {
-            
+
 //             if ($TTransporteur[$data[0]] !== '23') break;
             $data['ok'] = 1;
             if ($data[1] == 'PB') $data[1] = "NL";
             $fk_palier = $TPaliers[$TTransporteur[$data[0]].'-'.$data[3]];
-            
+
             $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_tarifs_transporteurs (rowid, fk_palier, fk_pays, departement, zipcode, tarif, active) VALUES (NULL, '".$fk_palier."', '".$TCountry[$data[1]]."', '".$data[2]."', '".$data[5]."', '".$data[4]."', '1');";
             $resql = $db->query($sql);
             if(! $resql) {

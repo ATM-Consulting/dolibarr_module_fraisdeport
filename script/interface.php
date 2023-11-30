@@ -39,10 +39,10 @@ function checkprice($weight, $country, $dpt)
 {
     global $db, $langs, $obj_id, $conf, $show_apply;
     
-    if (!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE))
+    if (getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE'))
     {
         $prod = new Product($db);
-        $prod->fetch($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE);
+        $prod->fetch( getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE'));
     }
     
     $result = array();
@@ -117,7 +117,7 @@ function checkprice($weight, $country, $dpt)
                         }
                     }
                 }
-                
+
             }
             $t[] = $tid;
             //if($tid == '23') break;
@@ -143,7 +143,7 @@ function checkprice($weight, $country, $dpt)
         {
             $p = ($price['prix'] < 1) ? $price['prix'] * $weight : $price['prix'];
             $ret .= '<tr class="oddeven"><td>'.$price['label'].'</td><td>'.$p.'</td>';
-            if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) {
+            if(getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE')) {
                 if ($show_apply) $ret .= '<td align="center"><a href="#" class="applyPrice butAction" data-method="'.$id.'" data-pv="'.$p.'">'.$langs->trans('Apply').'</a></td>';
                 else $ret .= '<td align="center">le document n\'est pas en brouillon</td>';
             }
