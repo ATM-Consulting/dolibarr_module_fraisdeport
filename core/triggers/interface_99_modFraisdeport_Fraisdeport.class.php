@@ -51,7 +51,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
             . "They are provided for tutorial purpose only.";
         // 'development', 'experimental', 'dolibarr' or version
         $this->version = 'development';
-        $this->picto = 'mymodule@mymodule';
+        $this->picto = 'fraisdeport@fraisdeport';
     }
 
     /**
@@ -113,7 +113,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
-        if (($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') && !empty($conf->mymodule) && $conf->mymodule->enabled) {
+        if (($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') && !empty($conf->fraisdeport) && $conf->fraisdeport->enabled) {
 
 			global $db,$conf;
 

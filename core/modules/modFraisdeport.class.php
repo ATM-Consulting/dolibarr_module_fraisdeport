@@ -155,9 +155,9 @@ class modFraisdeport extends DolibarrModules
 		// 'categories_x'		to add a tab in category view
 		// (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
 		// Dictionnaries
-		if (! isset($conf->mymodule->enabled)) {
-		    $conf->mymodule=new stdClass();
-		    $conf->mymodule->enabled = 0;
+		if (! isset($conf->fraisdeport->enabled)) {
+		    $conf->fraisdeport=new stdClass();
+		    $conf->fraisdeport->enabled = 0;
 		}
 		$this->dictionnaries = array();
 
