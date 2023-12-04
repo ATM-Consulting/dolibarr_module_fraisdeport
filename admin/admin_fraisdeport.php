@@ -118,7 +118,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_FRAIS_DE_PORT_ID_SERVICE_TO_USE">';
-$form->select_produits(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE) ? $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE : '', 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', 1, $conf->product->limit_size, (!empty($buyer) && !empty($buyer->price_level)) ? $buyer->price_level : '', 1, 2, '', 1);
+$form->select_produits(getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE', ''), 'FRAIS_DE_PORT_ID_SERVICE_TO_USE', 1, $conf->product->limit_size, (!empty($buyer) && !empty($buyer->price_level)) ? $buyer->price_level : '', 1, 2, '', 1);
 print '&nbsp;<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';

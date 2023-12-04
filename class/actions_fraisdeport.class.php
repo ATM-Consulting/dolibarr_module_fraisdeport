@@ -1,11 +1,13 @@
 <?php
-class ActionsFraisdeport
-{
-     /** Overloading the doActions function : replacing the parent's function with the one below
-      *  @param      parameters  meta datas of the hook (context, etc...)
-      *  @param      object             the object you want to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
-      *  @param      action             current action (if set). Generally create or edit or null
-      *  @return       void
+
+require_once __DIR__ . '/../backport/v19/core/class/commonhookactions.class.php';
+class ActionsFraisdeport extends \fraisdeport\RetroCompatCommonHookActions
+{ 
+     /** Overloading the doActions function : replacing the parent's function with the one below 
+      *  @param      parameters  meta datas of the hook (context, etc...) 
+      *  @param      object             the object you want to process (an invoice if you are in invoice module, a propale in propale's module, etc...) 
+      *  @param      action             current action (if set). Generally create or edit or null 
+      *  @return       void 
       */
 
     function doActions($parameters, &$object, &$action, $hookmanager)
@@ -27,7 +29,7 @@ class ActionsFraisdeport
         global $conf, $langs,$db;
 
 		
- 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && !empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
+ 		if((in_array('ordercard',explode(':',$parameters['context'])) || in_array('propalcard',explode(':',$parameters['context']))) && getDolGlobalString('FRAIS_DE_PORT_USE_WEIGHT')) {
  			    
 
 	        print '<script type="text/javascript">

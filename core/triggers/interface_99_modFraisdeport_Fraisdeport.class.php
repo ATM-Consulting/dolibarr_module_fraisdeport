@@ -51,7 +51,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
             . "They are provided for tutorial purpose only.";
         // 'development', 'experimental', 'dolibarr' or version
         $this->version = 'development';
-        $this->picto = 'mymodule@mymodule';
+        $this->picto = 'fraisdeport@fraisdeport';
     }
 
     /**
@@ -113,7 +113,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
-        if (($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') && $conf->mymodule->enabled) {
+        if (($action == 'ORDER_VALIDATE' || $action == 'PROPAL_VALIDATE') && !empty($conf->fraisdeport) && $conf->fraisdeport->enabled) {
 
 			global $db,$conf;
 
@@ -135,15 +135,15 @@ class InterfaceFraisdeport extends DolibarrTriggers
 
             $fdpAlreadyInDoc = TFraisDePort::alreadyAdded( $object );
 
-			if(!empty($conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE)) $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
-			else $fk_product = $conf->global->FRAIS_DE_PORT_ID_SERVICE_TO_USE;
+			if(getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE')) $fk_product = getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE');
+			else $fk_product = getDolGlobalString('FRAIS_DE_PORT_ID_SERVICE_TO_USE');
 
 			if(!$fdpAlreadyInDoc && !empty($fk_product) && $object->array_options['options_use_frais_de_port'] === 'Oui') {
 			dol_include_once('/product/class/product.class.php','Product');
 			$fdp_used_montant = TFraisDePort::getFDP($PDOdb, 'AMOUNT', $object->total_ht);
 
 			$fdp_used_weight = 0;
-			if(!empty($conf->global->FRAIS_DE_PORT_USE_WEIGHT)) {
+			if(getDolGlobalString('FRAIS_DE_PORT_USE_WEIGHT')) {
 				$total_weight = TFraisDePort::getTotalWeight($object);
 				$fdp_used_weight = TFraisDePort::getFDP($PDOdb, 'WEIGHT', $total_weight, $object->thirdparty->zip);
 			}

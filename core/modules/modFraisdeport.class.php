@@ -64,7 +64,7 @@ class modFraisdeport extends DolibarrModules
 		$this->description = "Frais de port calculés en fonction du prix de la commande";
 		// Possible values for version are: 'development', 'experimental' or version
 
-		$this->version = '1.3.1';
+		$this->version = '1.3.0';
 
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
@@ -117,9 +117,9 @@ class modFraisdeport extends DolibarrModules
 		// List of modules id to disable if this one is disabled
 		$this->requiredby = array();
 		// Minimum version of PHP required by module
-		$this->phpmin = array(5, 3);
+		$this->phpmin = array(7, 0);
 		// Minimum version of Dolibarr required by module
-		$this->need_dolibarr_version = array(3, 2);
+		$this->need_dolibarr_version = array(12, 0);
 		$this->langfiles = array("fraisdeport@fraisdeport"); // langfiles@mymodule
 		// Constants
 		// List of particular constants to add when module is enabled
@@ -157,9 +157,9 @@ class modFraisdeport extends DolibarrModules
 		// 'categories_x'		to add a tab in category view
 		// (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
 		// Dictionnaries
-		if (! isset($conf->mymodule->enabled)) {
-		    $conf->mymodule=new stdClass();
-		    $conf->mymodule->enabled = 0;
+		if (! isset($conf->fraisdeport->enabled)) {
+		    $conf->fraisdeport=new stdClass();
+		    $conf->fraisdeport->enabled = 0;
 		}
 		$this->dictionnaries = array();
 
@@ -317,9 +317,9 @@ class modFraisdeport extends DolibarrModules
 		$o=new TFraisDePort;
 		$o->init_db_by_vars($PDOdb);
 
-		if(!empty($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY)) {
+		if(getDolGlobalString('FRAIS_DE_PORT_WEIGHT_ARRAY')) {
 
-			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_WEIGHT_ARRAY);
+			$TFraisDePort = unserialize( getDolGlobalString('FRAIS_DE_PORT_WEIGHT_ARRAY'));
 
 			foreach($TFraisDePort as $fdp) {
 
@@ -336,8 +336,8 @@ class modFraisdeport extends DolibarrModules
 			dolibarr_del_const($db, 'FRAIS_DE_PORT_WEIGHT_ARRAY');
 		}
 
-		if(!empty($conf->global->FRAIS_DE_PORT_ARRAY)) {
-			$TFraisDePort = unserialize($conf->global->FRAIS_DE_PORT_ARRAY);
+		if(getDolGlobalString('FRAIS_DE_PORT_ARRAY')) {
+			$TFraisDePort = unserialize( getDolGlobalString('FRAIS_DE_PORT_ARRAY'));
 			foreach($TFraisDePort as $palier=>$fdp) {
 				$o=new TFraisDePort;
 				$o->palier = $palier;
