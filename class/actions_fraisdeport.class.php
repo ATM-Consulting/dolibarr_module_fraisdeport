@@ -151,7 +151,7 @@ class ActionsFraisdeport extends \fraisdeport\RetroCompatCommonHookActions
 
         $poidscmd = 0;
         /*
-        if(!$conf->shippableorder->enabled)
+        if(!isModEnabled('shippableorder'))
         {*/
             if(!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR',true);
             dol_include_once('/fraisdeport/config.php');

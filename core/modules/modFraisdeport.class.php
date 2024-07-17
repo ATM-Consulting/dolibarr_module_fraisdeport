@@ -133,9 +133,9 @@ class modFraisdeport extends DolibarrModules
 		// Example:
 		$this->tabs = array(
 		    //	// To add a new tab identified by code tabname1
-		    //	'objecttype:+tabname1:Title1:langfile@mymodule:$user->rights->mymodule->read:/mymodule/mynewtab1.php?id=__ID__',
+		    //	'objecttype:+tabname1:Title1:langfile@mymodule:$user->hasRight('mymodule', 'read'):/mymodule/mynewtab1.php?id=__ID__',
 		    //	// To add another new tab identified by code tabname2
-		    //	'objecttype:+tabname2:Title2:langfile@mymodule:$user->rights->othermodule->read:/mymodule/mynewtab2.php?id=__ID__',
+		    //	'objecttype:+tabname2:Title2:langfile@mymodule:$user->hasRight('othermodule', 'read'):/mymodule/mynewtab2.php?id=__ID__',
 		    //	// To remove an existing tab identified by code tabname
 		    //	'objecttype:-tabname'
 		);
@@ -157,7 +157,7 @@ class modFraisdeport extends DolibarrModules
 		// 'categories_x'		to add a tab in category view
 		// (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
 		// Dictionnaries
-		if (! isset($conf->fraisdeport->enabled)) {
+		if (! isModEnabled('fraisdeport')) {
 		    $conf->fraisdeport=new stdClass();
 		    $conf->fraisdeport->enabled = 0;
 		}
@@ -190,10 +190,10 @@ class modFraisdeport extends DolibarrModules
 		//// Permission by default for new user (0/1)
 		//$this->rights[$r][3] = 1;
 		//// In php code, permission will be checked by test
-		//// if ($user->rights->permkey->level1->level2)
+		//// if ($user->hasRight('permkey', 'level1', 'level2'))
 		//$this->rights[$r][4] = 'level1';
 		//// In php code, permission will be checked by test
-		//// if ($user->rights->permkey->level1->level2)
+		//// if ($user->hasRight('permkey', 'level1', 'level2'))
 		//$this->rights[$r][5] = 'level2';
 		//$r++;
 		// Main menu entries
@@ -217,9 +217,9 @@ class modFraisdeport extends DolibarrModules
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-		//	'enabled'=>'$conf->mymodule->enabled',
-		//	// Use 'perms'=>'$user->rights->mymodule->level1->level2'
+		//	// Use 'isModEnabled('mymodule')' if entry must be visible if module is enabled.
+		//	'enabled'=>'isModEnabled('mymodule')',
+		//	// Use 'perms'=>'$user->hasRight('mymodule', 'level1', 'level2')'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -242,9 +242,9 @@ class modFraisdeport extends DolibarrModules
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-		//	'enabled'=>'$conf->mymodule->enabled',
-		//	// Use 'perms'=>'$user->rights->mymodule->level1->level2'
+		//	// Use 'isModEnabled('mymodule')' if entry must be visible if module is enabled.
+		//	'enabled'=>'isModEnabled('mymodule')',
+		//	// Use 'perms'=>'$user->hasRight('mymodule', 'level1', 'level2')'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -268,10 +268,10 @@ class modFraisdeport extends DolibarrModules
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
+		//	// Use 'isModEnabled('mymodule')' if entry must be visible if module is enabled.
 		//	// Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//	'enabled'=>'$conf->mymodule->enabled',
-		//	// Use 'perms'=>'$user->rights->mymodule->level1->level2'
+		//	'enabled'=>'isModEnabled('mymodule')',
+		//	// Use 'perms'=>'$user->hasRight('mymodule', 'level1', 'level2')'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
