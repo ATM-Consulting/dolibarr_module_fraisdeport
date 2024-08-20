@@ -7,6 +7,7 @@ ___
 
 # Release 1.3
 
+- NEW : FIX fatal Trigger Validation Commande et Propal - 20/08/2024 - 1.3.1
 - NEW : Compat V19 et PHP 8.2 - 30/11/2023 - 1.3.0
 
 # Release 1.2
