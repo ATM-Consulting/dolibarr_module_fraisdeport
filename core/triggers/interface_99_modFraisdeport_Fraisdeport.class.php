@@ -120,7 +120,7 @@ class InterfaceFraisdeport extends DolibarrTriggers
 			$langs->load('fraisdeport@fraisdeport');
 
 			$object->fetch_optionals($object->id);
-			if(empty($object->client) && !empty($object->thirdparty))$object->client = &$object->thirdparty;
+			if(empty($object->client) && !empty($object->thirdparty)) $object->client = $object->thirdparty;
 			/*echo "<pre>";
 			print_r($object);
 			echo "</pre>";*/
